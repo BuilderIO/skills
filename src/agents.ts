@@ -28,6 +28,15 @@ export const agents: Record<AgentType, AgentConfig> = {
       );
     },
   },
+  builder: {
+    name: 'builder',
+    displayName: 'Builder.io',
+    skillsDir: '.builder/skills',
+    globalSkillsDir: join(home, '.builder/skills'),
+    detectInstalled: async () => {
+      return existsSync(join(home, '.builder'));
+    },
+  },
   'claude-code': {
     name: 'claude-code',
     displayName: 'Claude Code',
