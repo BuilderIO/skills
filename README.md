@@ -267,6 +267,7 @@ metadata:
 The CLI searches for skills in these locations within a repository:
 
 <!-- skill-discovery:start -->
+
 - Root directory (if it contains `SKILL.md`)
 - `skills/`
 - `skills/.curated/`
