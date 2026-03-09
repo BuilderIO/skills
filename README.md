@@ -212,6 +212,7 @@ Skills can be installed to any of these agents:
 | Amp, Kimi Code CLI, Replit, Universal | `amp`, `kimi-cli`, `replit`, `universal` | `.agents/skills/` | `~/.config/agents/skills/` |
 | Antigravity | `antigravity` | `.agent/skills/` | `~/.gemini/antigravity/skills/` |
 | Augment | `augment` | `.augment/skills/` | `~/.augment/skills/` |
+| Builder.io | `builder` | `.builder/skills/` | `~/.builder/skills/` |
 | Claude Code | `claude-code` | `.claude/skills/` | `~/.claude/skills/` |
 | OpenClaw | `openclaw` | `skills/` | `~/.openclaw/skills/` |
 | Cline | `cline` | `.agents/skills/` | `~/.agents/skills/` |
@@ -319,6 +320,7 @@ The CLI searches for skills in these locations within a repository:
 - `.agents/skills/`
 - `.agent/skills/`
 - `.augment/skills/`
+- `.builder/skills/`
 - `.claude/skills/`
 - `./skills/`
 - `.codebuddy/skills/`
@@ -424,6 +426,7 @@ Telemetry is automatically disabled in CI environments.
 - [Skills Directory](https://skills.sh)
 - [Amp Skills Documentation](https://ampcode.com/manual#agent-skills)
 - [Antigravity Skills Documentation](https://antigravity.google/docs/skills)
+- [Builder.io Skills Documentation](https://www.builder.io/c/docs/skills)
 - [Factory AI / Droid Skills Documentation](https://docs.factory.ai/cli/configuration/skills)
 - [Claude Code Skills Documentation](https://code.claude.com/docs/en/skills)
 - [OpenClaw Skills Documentation](https://docs.openclaw.ai/tools/skills)

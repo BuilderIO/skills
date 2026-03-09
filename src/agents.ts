@@ -54,6 +54,15 @@ export const agents: Record<AgentType, AgentConfig> = {
       return existsSync(join(home, '.augment'));
     },
   },
+  builder: {
+    name: 'builder',
+    displayName: 'Builder.io',
+    skillsDir: '.builder/skills',
+    globalSkillsDir: join(home, '.builder/skills'),
+    detectInstalled: async () => {
+      return existsSync(join(process.cwd(), '.builder')) || existsSync(join(home, '.builder'));
+    },
+  },
   'claude-code': {
     name: 'claude-code',
     displayName: 'Claude Code',
