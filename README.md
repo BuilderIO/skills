@@ -109,12 +109,12 @@ npx @agent-native/skills add --skill quick-recap
 npx @agent-native/skills add --skill visual-recap --with-github-action
 ```
 
-Useful flags:
+You can also use Vercel's `skills` CLI for a plain skill-folder copy:
 
-- `--skill <name>` installs one skill directly. Repeat it to install multiple.
-- `--scope project` installs into the current repo instead of your user config.
-- `--client codex`, `--client claude-code`, or `--client all` chooses the agent
-  client target.
-- `--update-instructions` accepts managed instruction updates without prompting.
-- `--with-github-action` adds the optional PR Visual Recap workflow when
-  `/visual-recap` is installed.
+```sh
+npx skills add BuilderIO/skills --skill quick-recap
+```
+
+That installer is useful for quick copying, but it does not add the managed
+`AGENTS.md` / `CLAUDE.md` instruction blocks or the PR Visual Recap GitHub
+Action that pair well with these skills.
