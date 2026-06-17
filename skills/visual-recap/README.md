@@ -20,6 +20,8 @@ notes.
 
 Visual recaps are MDX, customizable with your own components, and viewed with
 the [Agent-Native plans app](https://www.agent-native.com/docs/template-plan).
+The hosted app is 100% free and open source; local-files mode writes the recap
+MDX into your repo and opens a local preview with no sharing.
 [Source here](https://github.com/BuilderIO/agent-native/).
 
 <picture>
@@ -70,5 +72,12 @@ npx @agent-native/skills@latest add
 npx @agent-native/skills@latest add --skill visual-recap --with-github-action
 ```
 
-The skill expects the [Plan MCP connector](https://www.agent-native.com/docs/template-plan) to be available when it is used, unless
-local-files privacy mode is explicitly enabled.
+The interactive installer asks whether to use hosted Plans or local files. To
+force the no-sharing local path:
+
+```sh
+npx @agent-native/skills@latest add --skill visual-recap --mode local-files
+```
+
+The skill expects the [Plan MCP connector](https://www.agent-native.com/docs/template-plan)
+to be available when hosted mode is used.
