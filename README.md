@@ -2,11 +2,6 @@
 
 Small, composable skills for coding agents.
 
-These skills are for teams that want the agent to stay sharp where judgment
-matters: orchestration, review, planning, validation, docs discipline, and clear
-communication. They are not a giant process framework. Install the pieces you
-want, adapt them to your project, and let the model keep room to think.
-
 ### Quick install recommended skills
 
 ```sh
