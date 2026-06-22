@@ -190,3 +190,25 @@ npx skills@latest add BuilderIO/skills --skill quick-recap
 That installer is useful for quick copying, but it does not add the managed
 `AGENTS.md` / `CLAUDE.md` instruction blocks or the PR Visual Recap GitHub
 Action that pair well with these skills.
+
+### Install as a Claude Code plugin
+
+This repo is also a [Claude Code plugin
+marketplace](https://code.claude.com/docs/en/plugin-marketplaces). To install
+all of the skills as a managed, updatable plugin, run these inside Claude Code:
+
+```sh
+/plugin marketplace add BuilderIO/skills
+/plugin install builder-skills@builder-skills
+```
+
+The skills are then namespaced under the plugin (for example,
+`/builder-skills:quick-recap`). Pull future updates with:
+
+```sh
+/plugin marketplace update builder-skills
+```
+
+This path does not add the managed `AGENTS.md` / `CLAUDE.md` instruction blocks
+or the PR Visual Recap GitHub Action; use the `npx @agent-native/skills`
+installer above if you want those.
