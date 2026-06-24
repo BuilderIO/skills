@@ -5,13 +5,14 @@ Thank you for your interest in contributing! We welcome contributors of all type
 ---
 
 ## Table of contents
-
 - [How can I contribute?](#how-can-i-contribute)
 - [Code of conduct](#code-of-conduct)
 - [Filing issues](#filing-issues)
 - [Proposing changes (pull requests)](#proposing-changes-pull-requests)
 - [Development setup](#development-setup)
 - [Repository workflows & checks](#repository-workflows--checks)
+- [Code style & commit messages](#code-style--commit-messages)
+- [Review process & expectations](#review-process--expectations)
 - [License](#license)
 
 ---
@@ -76,7 +77,7 @@ We recommend creating draft PRs for early feedback on larger changes.
 2. Set up the agent-native framework path:
 
    On Windows (Command Prompt):
-   ```bash
+   ```DOS
    git clone https://github.com/BuilderIO/agent-native.git ../agent-native
    set AGENT_NATIVE_FRAMEWORK_PATH=../agent-native
    ```
@@ -90,7 +91,9 @@ We recommend creating draft PRs for early feedback on larger changes.
 
 ## Repository workflows & checks
 
-Before pushing your changes, verify everything works locally:
+This repository intentionally has zero standard npm dependencies. Instead, it uses specific scripts to sync and validate the skills structure.
+
+- Running Local Checks: Before opening a PR, ensure your changes pass the local check using the environment variable you set in the step above:
 ```bash
 npm run check
 ```
@@ -119,7 +122,7 @@ If the check fails, review the error messages and fix the issues before committi
    2. At least one maintainer review is required before merging.
    3. All CI checks must pass (`npm run check` and GitHub Actions workflows).
    4. Address feedback promptly and mark conversations as resolved.
-   5. Maintainers will provide feedback within 3–5 business days.
+   5. Maintainers will review as soon as they're able.
 
 We appreciate your patience and collaboration throughout the review process!
 
