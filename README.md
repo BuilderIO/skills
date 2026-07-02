@@ -11,7 +11,20 @@ npx @agent-native/skills@latest add
 The interactive picker puts `/visual-plan` and `/visual-recap` first and selects
 only those by default. See the [full CLI docs below](#install).
 
-## Skills
+## Skills At A Glance
+
+- [`/visual-plan`](#visual-plan) - Turn text plans into rich visual plans.
+- [`/visual-recap`](#visual-recap) - Turn diffs into interactive visual recaps.
+- [`/agent-watchdog`](#agent-watchdog) - Audit another agent's work.
+- [`/plan-arbiter`](#plan-arbiter) - Compare competing plans and choose a direction.
+- [`/plow-ahead`](#plow-ahead) - Keep working through ordinary ambiguity.
+- [`/efficient-fable`](#efficient-fable) - Orchestrate Fable with cheaper helper agents.
+- [`/efficient-frontier`](#efficient-frontier) - Preserve high-cost models for judgment.
+- [`/stay-within-limits`](#stay-within-limits) - Track usage limits before long-running work.
+- [`/quick-recap`](#quick-recap) - End work with a clear status signal.
+- [`/read-the-damn-docs`](#read-the-damn-docs) - Check authoritative docs before guessing.
+
+## Skill Details
 
 ### [`/visual-plan`](skills/visual-plan/README.md)
 
