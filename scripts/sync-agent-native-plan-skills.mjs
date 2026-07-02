@@ -8,7 +8,7 @@ const scriptPath = fileURLToPath(import.meta.url);
 const repoRoot = path.resolve(path.dirname(scriptPath), "..");
 const defaultFrameworkPath = path.resolve(
   repoRoot,
-  "../agent-native/framework",
+  "../agent-native",
 );
 
 const args = process.argv.slice(2);
