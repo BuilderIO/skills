@@ -24,9 +24,11 @@ repeatable, bounded, or token-heavy work to cheaper/faster subagents.
 ## Handoff Packets
 
 Write delegated prompts as self-contained packets. Assume the receiving agent
-has not seen the conversation. Include the repo path, objective, scope,
-out-of-scope areas, relevant files or search targets, expected return format,
-verification commands, and stop conditions.
+has not seen the conversation. Include the repo path, objective, the why (one
+or two sentences of operational intent — what decision the output feeds, not
+motivation), scope, out-of-scope areas, explicit don'ts (no refactors beyond the ask, no new
+features, no unrelated fixes), relevant files or search targets, expected
+return format, verification commands, and stop conditions.
 
 Useful stop conditions:
 
@@ -60,6 +62,11 @@ Use these as soft suggestions:
 ## Guardrails
 
 - Do not delegate the immediate blocker if your next step depends on it.
+- Do not loop on planning or re-delegating once you have enough information to
+  act — orchestration overhead is a cost too. Match effort and model tier to
+  the task instead of defaulting to maximum machinery.
+- Do not accept "done" without proof: require the specific command run and its
+  output, the diff, or file:line evidence backing the claim.
 - Do not ask multiple agents to edit the same files at the same time.
 - Do not trust subagent conclusions blindly when the risk is high; inspect the
   important evidence yourself.
