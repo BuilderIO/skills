@@ -14,14 +14,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22"
+      - name: Check public skill frontmatter
+        run: npm run check:skills
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           repository: BuilderIO/agent-native
           path: agent-native
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: "22"
       - name: Check synced visual skills
         env:
           AGENT_NATIVE_FRAMEWORK_PATH: ${{ github.workspace }}/agent-native
-        run: npm run check
+        run: npm run check:plan-skills

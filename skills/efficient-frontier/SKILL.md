@@ -1,6 +1,9 @@
 ---
 name: efficient-frontier
-description: Apply the same orchestration as `/efficient-fable` to any high-cost frontier model: delegate research, coding, and testing to cheaper subagents while keeping planning, synthesis, and final review with the expensive model.
+description: >-
+  Apply the same orchestration as `/efficient-fable` to any high-cost frontier
+  model: delegate research, coding, and testing to cheaper subagents while
+  keeping planning, synthesis, and final review with the expensive model.
 ---
 
 # Efficient Frontier

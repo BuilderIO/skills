@@ -6,7 +6,9 @@
   "description": "Public Builder skills for docs-first discipline, autonomous execution, cross-agent review, efficient frontier-model orchestration, clear status recaps, and Agent Native Plan workflows.",
   "license": "MIT",
   "scripts": {
+    "check:skills": "node scripts/check-skill-frontmatter.mjs",
+    "check:plan-skills": "node scripts/sync-agent-native-plan-skills.mjs --check",
     "sync:agent-native-plan-skills": "node scripts/sync-agent-native-plan-skills.mjs",
-    "check": "node scripts/sync-agent-native-plan-skills.mjs --check"
+    "check": "npm run check:skills && npm run check:plan-skills"
   }
 }
