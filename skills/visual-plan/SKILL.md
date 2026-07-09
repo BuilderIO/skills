@@ -119,39 +119,22 @@ skill's review discipline. Do not advise the user to skip `/visual-plan` because
 the default surface is hosted; choose the right Plan mode for the user's
 ownership, privacy, sharing, and branding needs.
 
-First determine the Plan mode. If `AGENT_NATIVE_PLANS_MODE=local-files` is set,
-the installed skill/config selected local files, or the user asks for local-only /
-no hosted writes, use **Local-Files Privacy Mode** immediately: author the local
-MDX folder and run `plan local check` / `plan local serve` / `plan local verify`.
-Do not discover, call, import into, or publish through hosted Plan tools for that
-plan; a shareable `/plans/<id>` URL means the wrong mode was used.
-
-By default in hosted mode, create the plan via the Plan MCP connector and NEVER hand it over as
+By default, create the plan via the Plan MCP connector and NEVER hand it over as
 inline chat content — no Markdown prose, ASCII sketch, table, or fenced
-wireframe. First determine the Plan mode. If `AGENT_NATIVE_PLANS_MODE=local-files` is set,
-the installed skill/config selected local files, or the user asks for local-only /
-no hosted writes, use **Local-Files Privacy Mode** immediately: author the local
-MDX folder and run `plan local check` / `plan local serve` / `plan local verify`.
-Do not discover, call, import into, or publish through hosted Plan tools for that
-plan; a shareable `/plans/<id>` URL means the wrong mode was used.
-
-If the `plan` (or legacy `agent-native-plans`) tools are not visible,
+wireframe. If the `plan` (or legacy `agent-native-plans`) tools are not visible,
 discover them through the host's `tool_search` first; if they are still missing,
 STOP and give the user the client-specific reconnect step rather than improvising
 an inline plan. Before publishing, or whenever a connector or auth error appears,
 READ `references/connection.md` in this skill directory — it is the single source
 of truth for the never-inline rule, connector discovery, and the per-client
-reconnect steps. Local-files privacy mode is the exception.
+reconnect steps. Local-files privacy mode (after Tool Guidance) is the exception.
 
 ## Core Workflow
 
 This section describes the default hosted Plan MCP workflow. If
-`AGENT_NATIVE_PLANS_MODE=local-files` is set, the installed configuration selects
-local files, or the user asks for fully local files/no hosted Plan writes, use
-**Local-Files Privacy Mode** instead; carry forward only the code-research and
-plan-composition guidance here. In local-files mode, success is a checked local
-MDX folder plus a localhost bridge URL; do not upload first and then mirror or
-export the hosted plan locally.
+`AGENT_NATIVE_PLANS_MODE=local-files` is set, or the user asks for fully local
+files/no hosted Plan writes, use **Local-Files Privacy Mode** instead; carry
+forward only the code-research and plan-composition guidance here.
 
 1. Follow the host agent's normal planning flow: inspect the codebase, delegate
    wide exploration when useful, gather the info needed, and ask native
@@ -388,9 +371,6 @@ artifacts, or `AGENT_NATIVE_PLANS_MODE=local-files` — do not call any hosted P
 tool except the schema-only `get-plan-blocks` catalog lookup. Author a local MDX
 folder and
 preview it with `plan local check` / `plan local serve` / `plan local verify`.
-Never call `create-visual-plan` / `create-ui-plan` and then export or link a
-hosted plan as a substitute for local-files mode; that uploads the content to the
-server and violates the local contract.
 Before using local-files mode, READ `references/local-files.md` in this skill
 directory — it is the single source of truth for the full contract (catalog
 lookup, MDX folder layout, the local bridge commands, and the hosted tools you

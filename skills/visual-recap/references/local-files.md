@@ -23,13 +23,10 @@ The local-files contract:
   `npx @agent-native/core@latest recap collect-diff`, `scan`, and
   `build-prompt --local-files` helpers are safe — they operate on local files and
   do not write to the Plan database.
-- **Fetch the block catalog first** (it sends no plan content). Prefer the local
-  CLI catalog command in local-files mode:
-  `npx @agent-native/core@latest plan blocks --out plan-blocks.md`, then read
-  that file before authoring MDX; it calls the public no-auth `get-plan-blocks`
-  route and never creates a plan. If the MCP `get-plan-blocks` tool is already
-  available you may use that schema-only lookup, but do not use tool discovery as
-  a prelude to hosted create/import/update tools for this local plan.
+- **Fetch the block catalog first** (it sends no plan content). Use the MCP
+  `get-plan-blocks` tool if it is already available, or run
+  `npx @agent-native/core@latest plan blocks --out plan-blocks.md` and read that
+  file before authoring MDX; it calls the public no-auth `get-plan-blocks` route.
   Use `--format schema` when you need exact nested fields. If network access is
   unavailable, use the bundled `references/*.md` and rely on `plan local check` to
   catch invalid tags. Copy the catalog examples verbatim for the fields the
@@ -82,18 +79,6 @@ The local-files contract:
   `import-visual-plan-source`, `update-visual-plan`, `patch-visual-plan-source`,
   `get-plan-feedback`, `export-visual-plan`, `set-resource-visibility`, or any
   other hosted Plan tool — except the schema-only block-catalog lookup above.
-  Do not create a hosted plan and then export it into a local folder, and do not
-  report a `plan.agent-native.com/plans/<id>` link as the local preview. Those
-  are uploads to the Plan database, not local-files mode. If you accidentally
-  created a hosted artifact while local-files mode was required, treat it as a
-  mistake: stop using that artifact, recreate the plan from local MDX, and tell
-  the user the local contract was corrected.
-  Do not create a hosted plan and then export it into a local folder, and do not
-  report a `plan.agent-native.com/plans/<id>` link as the local preview. Those
-  are uploads to the Plan database, not local-files mode. If you accidentally
-  created a hosted artifact while local-files mode was required, treat it as a
-  mistake: stop using that artifact, recreate the plan from local MDX, and tell
-  the user the local contract was corrected.
 - **Feedback is file/chat feedback.** Update the MDX files directly, rerun
   `plan local check`, and rerun `serve` or `verify` when that preview path is
   available. Summarize the new local URL when one exists; otherwise summarize the
