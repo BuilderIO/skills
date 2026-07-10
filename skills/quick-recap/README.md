@@ -45,6 +45,10 @@ Red means the agent is blocked on user input:
 🔴 Need the production API key to continue
 ```
 
+## Preview
+
+[See Quick Recap in a working agent](https://app.clawmama.run/skills/dt9dfr/hermes?locale=en-US&utm_source=github&utm_medium=issue&utm_campaign=skill_outreach_builderio_skills_quick_recap)
+
 ## Install
 
 ```sh

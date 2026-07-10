@@ -145,6 +145,8 @@ Example yellow status:
 🟡 Code updated, set PROVIDER_WEBHOOK_SECRET before testing webhooks
 ```
 
+[See Quick Recap in a working agent](https://app.clawmama.run/skills/dt9dfr/hermes?locale=en-US&utm_source=github&utm_medium=issue&utm_campaign=skill_outreach_builderio_skills_quick_recap)
+
 ### [`/read-the-damn-docs`](skills/read-the-damn-docs/README.md)
 
 Make agents web-search for authoritative docs before they guess from stale model
