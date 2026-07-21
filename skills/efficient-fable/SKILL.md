@@ -35,25 +35,41 @@ Reserve Fable for:
 Prefer parallel subagents when the slices do not depend on each other. Keep
 blocking or highly coupled work local.
 
+Once Fable has enough information to act, act. Do not loop on planning,
+re-scanning, or re-delegating work that is already understood — orchestration
+overhead is a cost like any other. Match the tier to the task: low
+effort/cheapest models for mechanical scans and edits, higher effort only for
+the hardest verify and judge steps, Fable itself only where its marginal
+judgment matters.
+
 ## Handoff Packets
 
 Write delegated prompts as if the subagent has no useful chat context. Include
 only the context it needs:
 
 - The repo path and exact objective.
+- The why: one or two sentences of operational intent — what decision the
+  output feeds ("this scan determines whether the fix belongs in parser or
+  renderer"), not motivation ("to improve quality").
 - The files, packages, or surfaces in scope and anything explicitly out of
   scope.
+- Explicit don'ts: what the subagent must not do (refactor beyond the ask, add
+  features, fix unrelated issues, invent abstractions). Negative scope keeps
+  cheaper models focused.
 - The evidence format to return: files, line refs, commands, diffs, failures,
   screenshots, and uncertainty.
 - The verification commands or browser flows to run, plus what success should
   look like when that is knowable.
-- Stop conditions: if the code does not match the prompt, a command fails after
-  a reasonable retry, or the task needs out-of-scope files, stop and report
-  instead of improvising.
+- Stop conditions: if the code does not match the prompt, a command fails twice
+  after a reasonable fix or retry, or the task needs out-of-scope files, stop
+  and report instead of improvising.
 
 ## Vetting Delegated Work
 
-Treat subagent reports as leads, not facts. Before using a high-impact finding,
+Treat subagent reports as leads, not facts. Make subagents prove completion:
+a "done" without the specific command run and its actual output, the diff, or
+the file:line evidence is a claim, not a result — send it back or verify it
+yourself. Before using a high-impact finding,
 opening a PR, or telling the user the work is done, Fable should reopen the
 important cited files, confirm the relevant line refs or failures, and review
 the final diff against the task. Let lighter agents gather signal; keep
