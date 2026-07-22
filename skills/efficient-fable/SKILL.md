@@ -35,6 +35,20 @@ Reserve Fable for:
 Prefer parallel subagents when the slices do not depend on each other. Keep
 blocking or highly coupled work local.
 
+## Staying Unblocked
+
+- Defer questions to the user until no other independent work remains: every
+  mid-plan stop stalls the slices that could keep moving. Batch open
+  questions for the end. Exception: ask immediately when the answer gates
+  every remaining slice or the next step is irreversible.
+- Don't sit blocked on a running subagent either: run subagents in the
+  background and spend the wait on orchestrator-side work — vetting earlier
+  results, planning the next slice.
+- Keep the build green even while changes are incomplete — leave unfinished
+  work stubbed or unwired rather than half-connected — so one blocked or
+  stalled slice does not block the others. If a slice breaks the build,
+  revert only its diff in the working copy.
+
 ## Handoff Packets
 
 Write delegated prompts as if the subagent has no useful chat context. Include
@@ -49,7 +63,8 @@ only the context it needs:
   look like when that is knowable.
 - Stop conditions: if the code does not match the prompt, a command fails after
   a reasonable retry, or the task needs out-of-scope files, stop and report
-  instead of improvising.
+  instead of improvising. Subagents should never pause to wait on user input;
+  they stop the task and report so the orchestrator stays unblocked.
 
 ## Vetting Delegated Work
 
