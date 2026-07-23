@@ -23,7 +23,7 @@ jobs:
         with:
           repository: BuilderIO/agent-native
           path: agent-native
-      - name: Check synced visual skills
+      - name: Check synced Agent Native skills
         env:
           AGENT_NATIVE_FRAMEWORK_PATH: ${{ github.workspace }}/agent-native
-        run: npm run check:plan-skills
+        run: npm run check:agent-native-skills
