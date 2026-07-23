@@ -13,7 +13,7 @@
   "interface": {
     "displayName": "Builder Skills",
     "shortDescription": "Builder skills for efficient agent workflows.",
-    "longDescription": "A small public skill collection for docs-first discipline, autonomous execution, cross-agent watchdogging and plan arbitration, local-first Rewind screen memory, efficient frontier-model orchestration, clear status recaps, and Agent-Native workflows. Rewind requires separate local Clips Screen Memory MCP setup before use.",
+    "longDescription": "A small public skill collection for docs-first discipline, autonomous execution, cross-agent watchdogging and plan arbitration, local-first Rewind screen memory, efficient frontier-model orchestration, clear status recaps, and Agent-Native workflows. Rewind asks permission to open the signed Clips Desktop install flow when the app is missing, then requires separate local Screen Memory MCP setup.",
     "developerName": "Builder.io",
     "category": "Productivity",
     "capabilities": ["Read", "Write"],
@@ -23,7 +23,8 @@
       "Web-search official docs before relying on memory for external APIs",
       "Install the quick recap status convention",
       "Use efficient Fable orchestration",
-      "Treat Rewind as unavailable until `npx @agent-native/core@latest skills add rewind --client codex --scope user --yes` configures the local Clips Screen Memory MCP and `screen_memory_status` succeeds"
+      "When Rewind is invoked without Clips Desktop, explain the prerequisite and ask permission before opening https://clips.agent-native.com/download; never install or enable capture silently",
+      "Treat Rewind as unavailable until Clips is running with Rewind enabled, `npx @agent-native/core@latest skills add rewind --client codex --scope user --yes` configures the local Screen Memory MCP, and `screen_memory_status` succeeds"
     ]
   }
 }

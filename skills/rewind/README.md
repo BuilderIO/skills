@@ -7,8 +7,8 @@ of local transcript, OCR, or frame context.
 
 ## Requirements
 
-- macOS with a current [Clips Desktop](https://www.agent-native.com/docs/template-clips)
-  build.
+- macOS with the current signed [Clips Desktop](https://clips.agent-native.com/download)
+  app installed and running.
 - A compatible coding-agent host: Codex, Claude Code, Cursor, OpenCode, GitHub
   Copilot, or Cowork.
 - Rewind enabled in the Clips tray. It is disabled by default, and macOS may
@@ -27,15 +27,24 @@ a hosted fallback wearing a fake mustache.
 
 ## Set Up Rewind
 
-The recommended path is in Clips Desktop:
+You can invoke `/rewind` before doing any setup. If Clips Desktop is missing,
+the agent should explain the prerequisite and ask permission before opening the
+official download page. It must not silently download or install Clips, bypass
+Gatekeeper, accept macOS permission prompts, or enable capture for you.
 
-1. Open the Clips tray, turn on **Rewind**, and select **Visuals** or
+After permission, a capable agent can open the official install flow. If the
+agent cannot control native UI, it should give you the direct
+[Clips Desktop download link](https://clips.agent-native.com/download) and wait
+for you to finish. Then:
+
+1. Install and launch Clips Desktop.
+2. Open the Clips tray, turn on **Rewind**, and select **Visuals** or
    **Visuals + audio**.
-2. Complete the macOS permission prompts.
-3. Click **Set up your agent** on the Rewind card and paste the copied prompt
+3. Complete the macOS permission prompts yourself.
+4. Click **Set up your agent** on the Rewind card and paste the copied prompt
    into your agent. It installs the reusable skill and the local MCP connection
    together.
-4. Restart the agent only if it cannot reload MCP servers in place.
+5. Restart the agent only if it cannot reload MCP servers in place.
 
 To repair or configure a connection directly, run this in a terminal with the
 matching client name:
@@ -52,7 +61,8 @@ npx @agent-native/skills@latest add --skill rewind
 
 Both advertised paths must install the local `clips-screen-memory` connection;
 if either reports that it cannot do so, treat setup as incomplete rather than
-using Rewind as prose-only instructions.
+using Rewind as prose-only instructions. These commands configure the agent;
+they do not install or enable Clips Desktop.
 
 ## First Test
 
@@ -65,6 +75,8 @@ local context range.
 
 If Rewind is unavailable:
 
+- If Clips Desktop is missing, ask the agent to open the official
+  [download page](https://clips.agent-native.com/download), or open it yourself.
 - Confirm Clips Desktop is current, running on macOS, and Rewind is enabled in
   its tray settings.
 - Run the direct command above with a supported `--client` value, then restart

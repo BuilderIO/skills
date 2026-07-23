@@ -125,8 +125,10 @@ Keep the core and standalone `@agent-native/skills` MCP descriptors in sync.
   local MCP connection; public setup docs must use `@agent-native/skills` or
   `@agent-native/core`.
 - Plugin manifests that publish the whole `skills/` directory must carry an
-  always-on setup directive: Rewind stays unavailable until Core configures the
-  local MCP connection and `screen_memory_status` succeeds.
+  always-on setup directive: invoking Rewind with Clips absent asks permission
+  before opening the official install flow, never installs or enables capture
+  silently, and keeps Rewind unavailable until Core configures the local MCP
+  connection and `screen_memory_status` succeeds.
 
 ## Final Reporting
 
