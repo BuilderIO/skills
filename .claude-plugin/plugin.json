@@ -1,7 +1,7 @@
 {
   "name": "builder-skills",
   "displayName": "Builder Skills",
-  "description": "Public Builder skills for docs-first discipline, autonomous execution, cross-agent review, efficient agent workflows, clear status recaps, and Agent-Native Plan modes.",
+  "description": "Public Builder skills for docs-first discipline, autonomous execution, cross-agent review, local-first Rewind memory, efficient agent workflows, clear status recaps, and Agent-Native workflows.",
   "author": {
     "name": "Builder.io",
     "url": "https://www.builder.io"

@@ -17,6 +17,7 @@ const sourceArg = args.find((arg) => arg !== "--check");
 
 const requestedSource =
   sourceArg ||
+  process.env.AGENT_NATIVE_SKILLS_SOURCE ||
   process.env.AGENT_NATIVE_PLAN_SKILLS_SOURCE ||
   process.env.AGENT_NATIVE_FRAMEWORK_PATH ||
   defaultFrameworkPath;
@@ -80,6 +81,37 @@ function resolveSources(sourcePath) {
   return match;
 }
 
+async function readRewindSkill(sourcePath) {
+  const rewindSource = path.join(
+    path.resolve(sourcePath),
+    "packages/core/src/cli/skills-content/rewind-skill.ts",
+  );
+  if (!existsSync(rewindSource)) {
+    throw new Error(`Could not find canonical Rewind skill at ${rewindSource}`);
+  }
+
+  const source = await readFile(rewindSource, "utf8");
+  const match = /export const REWIND_SKILL_MD = `([\s\S]*?)`;\s*$/.exec(source);
+  if (!match) {
+    throw new Error(`Could not read REWIND_SKILL_MD from ${rewindSource}`);
+  }
+
+  return {
+    source: rewindSource,
+    content: decodeStaticTemplateLiteral(match[1], rewindSource),
+  };
+}
+
+function decodeStaticTemplateLiteral(content, source) {
+  if (content.includes("${")) {
+    throw new Error(`Rewind skill interpolation is not supported in ${source}`);
+  }
+  if (/\\(?![\\`$])/.test(content)) {
+    throw new Error(`Rewind skill contains an unsupported escape in ${source}`);
+  }
+  return content.replace(/\\([\\`$])/g, "$1");
+}
+
 async function copySkill(name, sourceDir) {
   const destination = path.join(destinationRoot, name);
   const preservedDocs = [];
@@ -103,6 +135,30 @@ async function copySkill(name, sourceDir) {
 
   console.log(`Synced ${name}`);
   console.log(`  from ${sourceDir}`);
+  console.log(`  to   ${destination}`);
+}
+
+async function copyGeneratedSkill(name, source) {
+  const destination = path.join(destinationRoot, name);
+  const preservedDocs = [];
+
+  for (const rel of publicDocOverlays) {
+    const docPath = path.join(destination, rel);
+    if (existsSync(docPath)) {
+      preservedDocs.push([rel, await readFile(docPath, "utf8")]);
+    }
+  }
+
+  await rm(destination, { recursive: true, force: true });
+  await mkdir(destination, { recursive: true });
+  await writeFile(path.join(destination, "SKILL.md"), source.content);
+
+  for (const [rel, body] of preservedDocs) {
+    await writeFile(path.join(destination, rel), body);
+  }
+
+  console.log(`Synced ${name}`);
+  console.log(`  from ${source.source}`);
   console.log(`  to   ${destination}`);
 }
 
@@ -148,16 +204,30 @@ async function assertSkillCurrent(name, sourceDir) {
   console.log(`${name} is current`);
 }
 
+async function assertGeneratedSkillCurrent(name, source) {
+  const destination = path.join(destinationRoot, name, "SKILL.md");
+  if (!existsSync(destination)) {
+    throw new Error(`${name} is missing at ${destination}`);
+  }
+  if ((await readFile(destination, "utf8")) !== source.content) {
+    throw new Error(`${name}/SKILL.md is out of sync`);
+  }
+  console.log(`${name} is current`);
+}
+
 try {
   const sources = resolveSources(requestedSource);
+  const rewind = await readRewindSkill(requestedSource);
 
   console.log(`Using ${sources.label}`);
   if (check) {
     await assertSkillCurrent("visual-plan", sources.visualPlan);
     await assertSkillCurrent("visual-recap", sources.visualRecap);
+    await assertGeneratedSkillCurrent("rewind", rewind);
   } else {
     await copySkill("visual-plan", sources.visualPlan);
     await copySkill("visual-recap", sources.visualRecap);
+    await copyGeneratedSkill("rewind", rewind);
   }
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));
