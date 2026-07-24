@@ -1,4 +1,4 @@
-name: Update Agent Native visual skills
+name: Update Agent Native exported skills
 
 on:
   workflow_dispatch:
@@ -9,22 +9,24 @@ on:
         type: string
         default: main
   repository_dispatch:
-    types: [agent-native-plan-skills-updated]
+    types:
+      - agent-native-public-skills-updated
+      - agent-native-plan-skills-updated
 
 permissions:
   contents: write
   pull-requests: write
 
 concurrency:
-  group: update-agent-native-plan-skills
+  group: update-agent-native-skills
   cancel-in-progress: true
 
 env:
-  UPDATE_BRANCH: automation/update-agent-native-plan-skills
+  UPDATE_BRANCH: automation/update-agent-native-skills
 
 jobs:
   update:
-    name: Refresh visual-plan and visual-recap
+    name: Refresh exported Agent Native skills
     runs-on: ubuntu-latest
     steps:
       - name: Generate app token
@@ -50,15 +52,15 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Sync visual skills from Agent Native
+      - name: Sync exported skills from Agent Native
         env:
           AGENT_NATIVE_FRAMEWORK_PATH: ${{ github.workspace }}/.agent-native-source
-        run: npm run sync:agent-native-plan-skills
+        run: npm run sync:agent-native-skills
 
-      - name: Detect visual skill changes
+      - name: Detect exported skill changes
         id: diff
         run: |
-          if git diff --quiet -- skills/visual-plan skills/visual-recap; then
+          if git diff --quiet -- skills/visual-plan skills/visual-recap skills/rewind; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -72,12 +74,12 @@ jobs:
           pr_number="$(gh pr list --head "$UPDATE_BRANCH" --state open --json number --jq '.[0].number // ""')"
           if [ -n "$pr_number" ]; then
             gh pr close "$pr_number" \
-              --comment "No Agent Native visual skill updates remain; closing this stale updater PR." \
+              --comment "No Agent Native exported skill updates remain; closing this stale updater PR." \
               --delete-branch
           fi
-          echo "Visual skills are already current."
+          echo "Exported Agent Native skills are already current."
 
-      - name: Check synced visual skills
+      - name: Check synced exported skills
         if: steps.diff.outputs.changed == 'true'
         env:
           AGENT_NATIVE_FRAMEWORK_PATH: ${{ github.workspace }}/.agent-native-source
@@ -89,8 +91,8 @@ jobs:
           git config user.name "builder-bot"
           git config user.email "builder-bot@users.noreply.github.com"
           git checkout -B "$UPDATE_BRANCH"
-          git add skills/visual-plan skills/visual-recap
-          git commit -m "chore: update Agent Native visual skills"
+          git add skills/visual-plan skills/visual-recap skills/rewind
+          git commit -m "chore: update Agent Native exported skills"
           git push --force-with-lease origin "$UPDATE_BRANCH"
 
       - name: Open or update PR
@@ -103,8 +105,8 @@ jobs:
           SOURCE_SHA: ${{ github.event.client_payload.sourceSha || inputs.sourceSha || 'main' }}
           SOURCE_RUN_URL: ${{ github.event.client_payload.sourceRunUrl }}
         run: |
-          cat > /tmp/update-visual-skills-pr.md <<EOF
-          This automated PR syncs \`visual-plan\` and \`visual-recap\` from Agent Native.
+          cat > /tmp/update-agent-native-skills-pr.md <<EOF
+          This automated PR syncs exported skills from Agent Native.
 
           Source:
           - Repository: \`$SOURCE_REPOSITORY\`
@@ -118,14 +120,14 @@ jobs:
           pr_number="$(gh pr list --head "$UPDATE_BRANCH" --state open --json number --jq '.[0].number // ""')"
           if [ -n "$pr_number" ]; then
             gh pr edit "$pr_number" \
-              --title "chore: update Agent Native visual skills" \
-              --body-file /tmp/update-visual-skills-pr.md
+              --title "chore: update Agent Native exported skills" \
+              --body-file /tmp/update-agent-native-skills-pr.md
           else
             gh pr create \
               --base "$BASE_BRANCH" \
               --head "$UPDATE_BRANCH" \
-              --title "chore: update Agent Native visual skills" \
-              --body-file /tmp/update-visual-skills-pr.md
+              --title "chore: update Agent Native exported skills" \
+              --body-file /tmp/update-agent-native-skills-pr.md
             pr_number="$(gh pr list --head "$UPDATE_BRANCH" --state open --json number --jq '.[0].number')"
           fi
           echo "number=$pr_number" >> "$GITHUB_OUTPUT"

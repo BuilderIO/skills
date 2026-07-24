@@ -30,6 +30,10 @@ Use this for public skill work in this repo. Keep ordinary skill changes in
 - **Plan skills:** `visual-plan` and `visual-recap` have generated/synced copies
   between this repo and `../agent-native/framework`. Do not treat them like a
   standalone prose folder.
+- **Rewind:** its canonical `SKILL.md` is generated from Agent Native because
+  the instructions and local Screen Memory tools share one privacy contract.
+  Keep the human README here; use `npm run sync:agent-native-skills` for the
+  generated skill instead of editing it by hand.
 
 ## Plain Public Skill Checklist
 
@@ -105,9 +109,9 @@ special install flags, inspect the framework before editing:
 
 Keep the core and standalone `@agent-native/skills` MCP descriptors in sync.
 
-## Plan Skill Sync Gotchas
+## Agent Native Skill Sync Gotchas
 
-`visual-plan` and `visual-recap` are special:
+`visual-plan`, `visual-recap`, and `rewind` are special:
 
 - Framework contains canonical/generated copies and Plan marketplace bundles.
 - This repo's `npm run check` compares those copies and can fail for drift
@@ -115,6 +119,16 @@ Keep the core and standalone `@agent-native/skills` MCP descriptors in sync.
 - When intentionally changing Plan skills, use the framework sync paths instead
   of hand-editing generated copies. Search the framework for
   `sync-plan-marketplace`, `sync-workspace-skills`, and `skills.sync.spec.ts`.
+- Rewind's `SKILL.md` is generated from
+  `packages/core/src/cli/skills-content/rewind-skill.ts`. Its public README is
+  preserved as an overlay. The plain-copy installer cannot configure Rewind's
+  local MCP connection; public setup docs must use `@agent-native/skills` or
+  `@agent-native/core`.
+- Plugin manifests that publish the whole `skills/` directory must carry an
+  always-on setup directive: invoking Rewind with Clips absent asks permission
+  before opening the official install flow, never installs or enables capture
+  silently, and keeps Rewind unavailable until Core configures the local MCP
+  connection and `screen_memory_status` succeeds.
 
 ## Final Reporting
 

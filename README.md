@@ -14,6 +14,7 @@ See the [full CLI docs below](#install).
 
 - [`/visual-plan`](#visual-plan) - Turn text plans into rich visual plans.
 - [`/visual-recap`](#visual-recap) - Turn diffs into interactive visual recaps.
+- [`/rewind`](#rewind) - Recover recent local screen context through Clips Desktop.
 - [`/agent-watchdog`](#agent-watchdog) - Audit another agent's work.
 - [`/plan-arbiter`](#plan-arbiter) - Compare competing plans and choose a direction.
 - [`/plow-ahead`](#plow-ahead) - Keep working through ordinary ambiguity.
@@ -24,6 +25,20 @@ See the [full CLI docs below](#install).
 - [`/read-the-damn-docs`](#read-the-damn-docs) - Check authoritative docs before guessing.
 
 ## Skill Details
+
+### [`/rewind`](skills/rewind/README.md)
+
+Use local Clips Rewind screen memory to recover a recent moment: what was said,
+what appeared on screen, or what happened just before the current task. It
+searches bounded local chapters, transcripts, OCR, and frames first; it is not a
+hosted recording archive and does not upload raw local media by default.
+
+Rewind requires macOS, the signed
+[Clips Desktop app](https://clips.agent-native.com/download), and a compatible
+agent with the local `clips-screen-memory` MCP connection. If you invoke Rewind
+before installing Clips, the skill asks permission to open the official install
+flow instead of silently installing capture software. Follow the [Rewind setup
+and first-test guide](skills/rewind/README.md).
 
 ### [`/visual-plan`](skills/visual-plan/README.md)
 
@@ -164,8 +179,8 @@ Run the installer:
 npx @agent-native/skills@latest add
 ```
 
-The picker shows the full catalog, with `/visual-plan` and `/visual-recap` at
-the top and preselected by default. Toggle any additional skills you want.
+The picker shows the full catalog, with the recommended skills preselected.
+Toggle any additional skills you want.
 
 The installer walks you through the choices:
 
@@ -180,12 +195,17 @@ The installer walks you through the choices:
   selected skills have always-on guidance.
 - Whether to add the PR Visual Recap GitHub Action when `/visual-recap` is
   selected.
+- Whether to configure a compatible local agent connection when `/rewind` is
+  selected. The installer does not install Clips Desktop. If it is missing,
+  invoking Rewind asks permission to open the official download flow; capture
+  remains disabled until you turn it on in the Clips tray.
 
 Skip the picker with `--skill`:
 
 ```sh
 npx @agent-native/skills@latest add --skill quick-recap
 npx @agent-native/skills@latest add --skill visual-recap --with-github-action
+npx @agent-native/skills@latest add --skill rewind
 ```
 
 You can also use Vercel's `skills` CLI for a plain skill-folder copy:
@@ -193,6 +213,10 @@ You can also use Vercel's `skills` CLI for a plain skill-folder copy:
 ```sh
 npx skills@latest add BuilderIO/skills --skill quick-recap
 ```
+
+Do not use the plain-copy installer for Rewind: it cannot configure the local
+`clips-screen-memory` connection. Use `@agent-native/skills` or
+`@agent-native/core` for a complete Rewind setup.
 
 That installer is useful for quick copying, but it does not add the managed
 `AGENTS.md` / `CLAUDE.md` instruction blocks or the PR Visual Recap GitHub
@@ -215,6 +239,17 @@ The skills are then namespaced under the plugin (for example,
 ```sh
 /plugin marketplace update builder-skills
 ```
+
+The plugin installs Rewind's instructions only; it cannot configure the local
+Clips Screen Memory MCP connection. When invoked, Rewind can ask permission to
+open the official Clips Desktop installer, but it must not install or enable
+capture silently. After Clips is installed and Rewind is enabled, also run:
+
+```sh
+npx @agent-native/core@latest skills add rewind --client claude-code --scope user --yes
+```
+
+Treat Rewind as unavailable until `screen_memory_status` succeeds.
 
 This path does not add the managed `AGENTS.md` / `CLAUDE.md` instruction blocks
 or the PR Visual Recap GitHub Action; use the `npx @agent-native/skills`

@@ -3,12 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Public Builder skills for docs-first discipline, autonomous execution, cross-agent review, efficient frontier-model orchestration, clear status recaps, and Agent Native Plan workflows.",
+  "description": "Public Builder skills for docs-first discipline, autonomous execution, cross-agent review, local-first Rewind memory, efficient frontier-model orchestration, clear status recaps, and Agent Native workflows.",
   "license": "MIT",
   "scripts": {
     "check:skills": "node scripts/check-skill-frontmatter.mjs",
-    "check:plan-skills": "node scripts/sync-agent-native-plan-skills.mjs --check",
-    "sync:agent-native-plan-skills": "node scripts/sync-agent-native-plan-skills.mjs",
-    "check": "npm run check:skills && npm run check:plan-skills"
+    "check:agent-native-skills": "node scripts/sync-agent-native-skills.mjs --check",
+    "sync:agent-native-skills": "node scripts/sync-agent-native-skills.mjs",
+    "check": "npm run check:skills && npm run check:agent-native-skills"
   }
 }
