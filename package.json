@@ -7,8 +7,10 @@
   "license": "MIT",
   "scripts": {
     "check:skills": "node scripts/check-skill-frontmatter.mjs",
-    "check:plan-skills": "node scripts/sync-agent-native-plan-skills.mjs --check",
-    "sync:agent-native-plan-skills": "node scripts/sync-agent-native-plan-skills.mjs",
+    "check:visual-skills": "node scripts/sync-agent-native-plan-skills.mjs --check",
+    "check:plan-skills": "npm run check:visual-skills",
+    "sync:agent-native-visual-skills": "node scripts/sync-agent-native-plan-skills.mjs",
+    "sync:agent-native-plan-skills": "npm run sync:agent-native-visual-skills",
     "check": "npm run check:skills && npm run check:plan-skills"
   }
 }

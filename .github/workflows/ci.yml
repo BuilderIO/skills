@@ -26,4 +26,4 @@ jobs:
       - name: Check synced visual skills
         env:
           AGENT_NATIVE_FRAMEWORK_PATH: ${{ github.workspace }}/agent-native
-        run: npm run check:plan-skills
+        run: npm run check:visual-skills

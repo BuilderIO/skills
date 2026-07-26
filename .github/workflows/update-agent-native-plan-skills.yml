@@ -9,7 +9,7 @@ on:
         type: string
         default: main
   repository_dispatch:
-    types: [agent-native-plan-skills-updated]
+    types: [agent-native-plan-skills-updated, agent-native-public-skills-updated]
 
 permissions:
   contents: write
@@ -24,7 +24,7 @@ env:
 
 jobs:
   update:
-    name: Refresh visual-plan and visual-recap
+    name: Refresh visual-plan, visual-recap, and visual-edit
     runs-on: ubuntu-latest
     steps:
       - name: Generate app token
@@ -58,7 +58,7 @@ jobs:
       - name: Detect visual skill changes
         id: diff
         run: |
-          if git diff --quiet -- skills/visual-plan skills/visual-recap; then
+          if git diff --quiet -- skills/visual-plan skills/visual-recap skills/visual-edit; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -89,7 +89,7 @@ jobs:
           git config user.name "builder-bot"
           git config user.email "builder-bot@users.noreply.github.com"
           git checkout -B "$UPDATE_BRANCH"
-          git add skills/visual-plan skills/visual-recap
+          git add skills/visual-plan skills/visual-recap skills/visual-edit
           git commit -m "chore: update Agent Native visual skills"
           git push --force-with-lease origin "$UPDATE_BRANCH"
 
@@ -104,7 +104,7 @@ jobs:
           SOURCE_RUN_URL: ${{ github.event.client_payload.sourceRunUrl }}
         run: |
           cat > /tmp/update-visual-skills-pr.md <<EOF
-          This automated PR syncs \`visual-plan\` and \`visual-recap\` from Agent Native.
+          This automated PR syncs \`visual-plan\`, \`visual-recap\`, and \`visual-edit\` from Agent Native.
 
           Source:
           - Repository: \`$SOURCE_REPOSITORY\`

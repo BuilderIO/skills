@@ -35,14 +35,16 @@ function resolveSources(sourcePath) {
       label: "direct skills directory",
       visualPlan: path.join(source, "visual-plan"),
       visualRecap: path.join(source, "visual-recap"),
+      visualEdit: path.join(source, "visual-edit"),
     },
     {
       label: "repo skills directory",
       visualPlan: path.join(source, "skills", "visual-plan"),
       visualRecap: path.join(source, "skills", "visual-recap"),
+      visualEdit: path.join(source, "skills", "visual-edit"),
     },
     {
-      label: "Agent-Native visual plans plugin",
+      label: "Agent-Native app plugins",
       visualPlan: path.join(
         source,
         ".agents/plugins/agent-native-visual-plans/skills/visual-plan",
@@ -51,29 +53,36 @@ function resolveSources(sourcePath) {
         source,
         ".agents/plugins/agent-native-visual-plans/skills/visual-recap",
       ),
+      visualEdit: path.join(
+        source,
+        ".agents/plugins/agent-native-design/skills/visual-edit",
+      ),
     },
     {
       label: "legacy framework skills",
       visualPlan: path.join(source, "skills", "visual-plans"),
       visualRecap: path.join(source, "skills", "visual-recap"),
+      visualEdit: path.join(source, "skills", "visual-edit"),
     },
   ];
 
   const match = candidates.find(
     (candidate) =>
-      hasSkill(candidate.visualPlan) && hasSkill(candidate.visualRecap),
+      hasSkill(candidate.visualPlan) &&
+      hasSkill(candidate.visualRecap) &&
+      hasSkill(candidate.visualEdit),
   );
 
   if (!match) {
     const checked = candidates
       .map(
         (candidate) =>
-          `- ${candidate.label}: ${candidate.visualPlan} and ${candidate.visualRecap}`,
+          `- ${candidate.label}: ${candidate.visualPlan}, ${candidate.visualRecap}, and ${candidate.visualEdit}`,
       )
       .join("\n");
 
     throw new Error(
-      `Could not find both visual-plan and visual-recap skills from ${source}.\nChecked:\n${checked}`,
+      `Could not find visual-plan, visual-recap, and visual-edit skills from ${source}.\nChecked:\n${checked}`,
     );
   }
 
@@ -155,9 +164,11 @@ try {
   if (check) {
     await assertSkillCurrent("visual-plan", sources.visualPlan);
     await assertSkillCurrent("visual-recap", sources.visualRecap);
+    await assertSkillCurrent("visual-edit", sources.visualEdit);
   } else {
     await copySkill("visual-plan", sources.visualPlan);
     await copySkill("visual-recap", sources.visualRecap);
+    await copySkill("visual-edit", sources.visualEdit);
   }
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));

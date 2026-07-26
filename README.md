@@ -15,6 +15,7 @@ only those by default. See the [full CLI docs below](#install).
 
 - [`/visual-plan`](#visual-plan) - Turn text plans into rich visual plans.
 - [`/visual-recap`](#visual-recap) - Turn diffs into interactive visual recaps.
+- [`/visual-edit`](#visual-edit) - Open a running local app for visual editing.
 - [`/agent-watchdog`](#agent-watchdog) - Audit another agent's work.
 - [`/plan-arbiter`](#plan-arbiter) - Compare competing plans and choose a direction.
 - [`/plow-ahead`](#plow-ahead) - Keep working through ordinary ambiguity.
@@ -25,6 +26,15 @@ only those by default. See the [full CLI docs below](#install).
 - [`/read-the-damn-docs`](#read-the-damn-docs) - Check authoritative docs before guessing.
 
 ## Skill Details
+
+### [`/visual-edit`](skills/visual-edit/README.md)
+
+Open a running local app in Design as URL-backed iframe screens for visual
+inspection, route-state exploration, and source-backed editing.
+
+Unlike a static mockup, the canvas stays connected to the app's real routes and
+the local bridge. Use `/visual-edit` when a UI needs to be reviewed or changed
+in context, including responsive states and multi-screen flows.
 
 ### [`/visual-plan`](skills/visual-plan/README.md)
 
