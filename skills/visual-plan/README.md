@@ -3,7 +3,7 @@
 Turn ordinary implementation plans into rich interactive visual review surfaces.
 
 `/visual-plan` turns the plan an agent would normally write in chat into a
-human-optimized MDX document. Instead of a long wall of prose, reviewers get
+human-optimized MDX document. In local-files mode, it writes and serves the MDX locally rather than publishing to the hosted Plan database. Instead of a long wall of prose, reviewers get
 custom components built for understanding: architecture diagrams, wireframes,
 interactive prototypes, file maps, annotated code, OpenAPI-style API specs,
 visual schema maps, open questions, and comments.
@@ -65,7 +65,8 @@ actual codebase.
   and the browser editor.
 - **Local files only:** writes a local MDX folder, starts a localhost bridge,
   and opens the hosted Plan UI against that local source. No sharing, all local,
-  and no plan content is written to the hosted database.
+  and no plan content is written to the hosted database. The skill must not
+  create a hosted Plan first and export it back to local files.
 - **Self-hosted/custom URL:** connects the skill to your own Plan app or local
   development tunnel.
 
