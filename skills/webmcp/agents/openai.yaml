@@ -1,4 +1,4 @@
 interface:
   display_name: "WebMCP Browser"
   short_description: "Open in-app pages and use MCP first"
-  default_prompt: "Use $webmcp to open this app in the built-in browser and use its MCP tools first."
+  default_prompt: "Use $webmcp with the URL and full request, wait for sign-in if needed, then use the host bridge, WebMCP relay, or browser JavaScript evaluator before UI automation."

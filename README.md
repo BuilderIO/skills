@@ -12,6 +12,7 @@ See the [full CLI docs below](#install).
 
 ## Skills At A Glance
 
+- [`/webmcp`](skills/webmcp/README.md) - Open web apps in the built-in browser and use MCP tools first.
 - [`/visual-plan`](#visual-plan) - Turn text plans into rich visual plans.
 - [`/visual-recap`](#visual-recap) - Turn diffs into interactive visual recaps.
 - [`/visual-edit`](#visual-edit) - Open a running local app for visual editing.
@@ -26,6 +27,17 @@ See the [full CLI docs below](#install).
 - [`/read-the-damn-docs`](#read-the-damn-docs) - Check authoritative docs before guessing.
 
 ## Skill Details
+
+### [`/webmcp`](skills/webmcp/README.md)
+
+Open a requested URL in the host's built-in browser and use the page's MCP or
+WebMCP tools before browser UI automation for app communication or edits. For
+example, run `/webmcp slides.agent-native.com make me a new deck about onboarding`
+to open Slides and complete the request in that tab. The skill waits for the
+user to sign in when needed, then tries a host WebMCP bridge, MCP-B local relay,
+or the browser host's JavaScript evaluator calling the live
+`document.modelContext` tools. If none is available, it stops before a
+state-changing click or type fallback and reports the limitation.
 
 ### [`/visual-edit`](skills/visual-edit/README.md)
 
@@ -216,6 +228,7 @@ Skip the picker with `--skill`:
 npx @agent-native/skills@latest add --skill quick-recap
 npx @agent-native/skills@latest add --skill visual-recap --with-github-action
 npx @agent-native/skills@latest add --skill rewind
+npx @agent-native/skills@latest add --skill webmcp
 ```
 
 You can also use Vercel's `skills` CLI for a plain skill-folder copy:
