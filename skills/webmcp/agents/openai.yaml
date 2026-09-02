@@ -1,0 +1,4 @@
+interface:
+  display_name: "WebMCP Browser"
+  short_description: "Open in-app pages and use MCP first"
+  default_prompt: "Use $webmcp to open this app in the built-in browser and use its MCP tools first."
