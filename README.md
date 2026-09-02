@@ -32,12 +32,10 @@ See the [full CLI docs below](#install).
 
 Open a requested URL in the host's built-in browser and use the page's MCP or
 WebMCP tools before browser UI automation for app communication or edits. For
-example, run `/webmcp slides.agent-native.com make me a new deck about onboarding`
-to open Slides and complete the request in that tab. The skill waits for the
-user to sign in when needed, then tries a host WebMCP bridge, MCP-B local relay,
-or the browser host's JavaScript evaluator calling the live
-`document.modelContext` tools. If none is available, it stops before a
-state-changing click or type fallback and reports the limitation.
+example, run `/webmcp slides.agent-native.com` to open Slides and then use its
+current-screen, read, and smallest mutation tools for focused work. If the host
+cannot discover or invoke MCP tools, the skill stops before a state-changing
+click or type fallback and reports the limitation.
 
 ### [`/visual-edit`](skills/visual-edit/README.md)
 
