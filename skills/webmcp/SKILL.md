@@ -187,19 +187,68 @@ Once an operation is supplied, keep discovery and execution bounded:
   as soon as it is present. If it is not present while the page is still
   registering, wait briefly outside the page and make one fresh same-world
   discovery. A value you cannot find is unread, not absent.
+- When `window.__agentNativeWebMcpStatus` exists, it is authoritative: it
+  reports `registering`, `ready`, or `failed` with registered/total counts, so a
+  partial list is distinguishable from a complete one. Prefer it over any
+  heuristic. It ships with an `@agent-native/core` release later than
+  2026-09-03, so treat its absence as "unknown" and fall back to these rules.
 - If a previously captured descriptor fails with `RegisteredTool must be an
-  object` or `not found in registry`, treat that as registry staleness. Refresh
-  the target descriptor and retry once with the active host's invocation
-  contract. If the target is absent from a fresh list, make one fresh
-  host-side discovery after the page has had time to register. Do not busy-loop,
-  guess signatures, or retry an unsupported tool.
+  object` or `not found in registry`, that is registry staleness, never a
+  missing tool. Refresh the target descriptor and re-execute immediately with
+  the active host's invocation contract, repeating without delay inside the
+  same evaluation — measured on beta Forms, the first success came on the 8th
+  immediate attempt, so a single retry gives up too early and reports a live
+  tool as missing. If instead the target is absent from a fresh list, that is
+  `not-registered` and needs real elapsed time: make one fresh host-side
+  discovery after the page has had time to register, because immediate in-page
+  retries consume no wall-clock. Do not guess signatures or retry an
+  unsupported tool.
+- Never `setTimeout` to wait. A hidden browser pane throttles page timers so
+  hard that even a watchdog race will not fire, turning every in-page wait into
+  an evaluator timeout. Drive a pause with network I/O instead, which is not
+  throttled: `while (Date.now() - t0 < ms) { try { await
+  fetch(location.origin + "/favicon.ico", { cache: "no-store" }); } catch {} }`
 - Batch two to four dependent calls per evaluator invocation and return a
-  compact summary with the immediate readback. Keep large generation flows
-  incremental so the user gets control back quickly, and keep navigation out
-  of batches because a navigation error can abort them.
-- Keep the built-in browser pane visible while tools register. If navigation
+  compact summary with the immediate readback. Two to four is the ceiling
+  because the evaluator caps near 45s and one timeout loses the whole batch.
+  Keep large generation flows incremental so the user gets control back
+  quickly, and keep navigation out of batches because a navigation error can
+  abort them.
+- Keep the built-in browser pane visible while tools register. This is the
+  dominant cost, not the app: beta Design registered all 217 tools immediately
+  with the pane visible, versus 59 after 28s hidden and never settling. If
+  registration crawls, front the pane before blaming the app. If navigation
   reports an error, verify the actual URL before retrying because the page may
-  have loaded.
+  have loaded — a false "denied or failed" is common.
+
+The whole recipe as one page helper. Call tools through it rather than
+hand-rolling a stability poll:
+
+```js
+const ctx = document.modelContext;
+window.call = async (name, args, tries = 10) => {
+  let lastErr = null, lastCount = 0;
+  for (let i = 0; i < tries; i++) {
+    const tools = await ctx.getTools(); lastCount = tools.length;
+    const tool = tools.find((t) => t.name === name);
+    if (!tool) { lastErr = "not-registered"; continue; }
+    try {
+      const r = await ctx.executeTool(tool, JSON.stringify(args));
+      let v; try { v = typeof r === "string" ? JSON.parse(r) : r; }
+      catch { v = { __text: String(r) }; }
+      return { ok: true, attempts: i + 1, count: lastCount, result: v };
+    } catch (e) {
+      const m = String((e && e.message) || e); lastErr = m;
+      if (/RegisteredTool must be an object|not found in registry/i.test(m)) continue;
+      return { ok: false, attempts: i + 1, count: lastCount, error: m };
+    }
+  }
+  return { ok: false, count: lastCount, error: "exhausted: " + lastErr };
+};
+```
+
+Substitute the Codex page adapter's object-arg contract for
+`JSON.stringify(args)` when that adapter is the active host.
 
 Do not click, double-click, type, drag, or use browser DOM automation to perform
 an app operation when a matching MCP tool is available. UI controls may be used
