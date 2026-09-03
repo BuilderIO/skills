@@ -188,10 +188,11 @@ Treat "this", "the selected text", a cursor, or a single named field as a
 focused operation. It does not mean inspect the whole parent document.
 
 - Use the current-screen or context result once when it is not already in the
-  request or page state. If it supplies a stable item/slide ID and a short
-  value, use those directly. If it supplies the selected item's identity and
-  typed operation fields accepted by the matching mutation, pass them through
-  verbatim.
+  request or page state. If it supplies a stable item/slide ID and an explicit
+  exact selected-text/range value, use those directly; do not treat an element
+  text preview as a browser range. If it supplies the selected item's identity
+  and typed operation fields accepted by the matching mutation, pass them
+  through verbatim.
 - Call the smallest mutation immediately. For text, prefer one literal
   replacement with the exact selected value and `expectedMatches: 1` when the
   action supports it.
