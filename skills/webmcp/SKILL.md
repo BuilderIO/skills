@@ -62,32 +62,45 @@ agent. Do not treat a capability wrapper, a manifest, or a failed
 - If the host exposes MCP-B relay tools, call the listed source/tool discovery
   tool once and use the exact dynamic tool returned for the requested tab.
 - Otherwise use the host's live-page JavaScript evaluator immediately. In
-  Codex CUA this is `tab.playwright.evaluate` or an already-exposed CDP
-  `Runtime.evaluate` with `awaitPromise: true` and `returnByValue: true`. In
-  Cowork, use the equivalent page evaluator. Do not open or type into a
-  developer console.
+  Codex CUA, use `tab.capabilities.get("cdp")` and CDP `Runtime.evaluate` first
+  so the expression runs in the page world where host-injected globals live. In
+  Cowork, use its equivalent same-world page evaluator. Use
+  `tab.playwright.evaluate` only as a fallback because Playwright may run in an
+  isolated world that cannot see `document.modelContext`. Do not open or type
+  into a developer console.
 - Do not substitute a generic `tool-search`, unrelated app connector,
   `ask_app`, or remote API for the current tab's page tools unless the host
   explicitly binds it to that browser session.
 
 For a direct page call, keep listing and execution in the same page context so
-the host never tries to serialize or call a page-owned callback:
+the host never tries to serialize or call a page-owned callback. In Codex CUA,
+the CDP response is nested, so explicitly surface its serializable value:
 
 ```js
-const snapshot = await tab.playwright.evaluate(async () => {
-  if (!document.modelContext) {
-    return { supported: false };
-  }
-  const tools = await document.modelContext.getTools();
-  const tool = tools.find(({ name }) => name === TOOL_NAME);
-  if (!tool) throw new Error(`WebMCP tool ${TOOL_NAME} is unavailable`);
-  const result = await document.modelContext.executeTool(
-    tool,
-    JSON.stringify(ARGS),
-  );
-  return typeof result === "string" ? JSON.parse(result) : result;
+const cdp = await tab.capabilities.get("cdp");
+const response = await cdp.send("Runtime.evaluate", {
+  expression: `(async () => {
+    const context = document.modelContext;
+    if (!context) return JSON.stringify({ state: "absent", href: location.href });
+    const tools = await context.getTools();
+    const tool = tools.find(({ name }) => name === TOOL_NAME);
+    if (!tool) return JSON.stringify({ state: "tool-missing", toolCount: tools.length, tools });
+    const result = await context.executeTool(tool, JSON.stringify(ARGS));
+    return JSON.stringify({
+      state: "executed",
+      result: typeof result === "string" ? JSON.parse(result) : result,
+    });
+  })()`,
+  awaitPromise: true,
+  returnByValue: true,
 });
-nodeRepl.write(JSON.stringify({ webmcpResult: snapshot }));
+const raw = response?.result?.value;
+nodeRepl.write(
+  JSON.stringify({
+    webmcpResult:
+      typeof raw === "string" ? JSON.parse(raw) : { state: "unreadable" },
+  }),
+);
 ```
 
 Replace `TOOL_NAME` and `ARGS` with the exact listed name and schema-shaped
@@ -101,17 +114,22 @@ In Codex CUA, `tab.playwright.evaluate` may print the tab's accessibility tree
 alongside the host result. Treat that tree, screenshots, and other page
 observations as context only. The call is successful only when the explicit
 `webmcpResult` payload from `nodeRepl.write` (or the host's equivalent result
-channel) contains the expected serializable object. If no explicit evaluator
-result is surfaced, classify the evaluator as unavailable and stop; do not
-infer support or tools from the accessibility tree and do not loop through
-alternate probes.
+channel) contains the expected serializable object. A Playwright `null` or
+missing `document.modelContext` is indeterminate because its isolated world may
+hide the host surface. Confirm it with CDP or a second same-world evaluator
+before declaring WebMCP unsupported. If the second evaluator is unavailable,
+report the evaluator as unavailable, not unsupported. A confirmed empty list
+means the page advertised WebMCP but exposed no tools.
 
-Use the first working path. Do not probe hidden globals, guess alternate method
-signatures, or retry the same unavailable surface. A null or undefined
-`document.modelContext` means this page/host cannot use direct WebMCP; report
-that immediately. An empty list means the page advertised WebMCP but exposed
-no tools. Allow at most one fresh discovery after the user signs in or the page
-navigates.
+Do not probe hidden globals, guess alternate method signatures, or retry the
+same unavailable surface. Allow at most one fresh discovery after the user
+signs in or the page navigates.
+
+The ChatGPT app's page-world `document.modelContext` may expose
+`codexExecuteTool`, `codexGetTools`, `executeTool`, `getTools`, and
+`registerTool`; these can all have `length === 0`, so do not infer their
+signatures from arity. Its `executeTool` expects the tool descriptor followed by
+`JSON.stringify(args)`, not an object.
 
 After discovery:
 
@@ -150,26 +168,34 @@ Use a non-empty `create-deck` payload only for imports or an intentional atomic
 bulk replacement. The empty-deck workflow lets the user watch the deck grow
 without one long, fragile tool call.
 
+For source-preserving Slides decks, read `get-deck.sourceEditability` before
+structural edits. If the user explicitly asks to rewrite the imported deck,
+pass `rewriteSource: true` to `patch-deck`; this conversion clears
+source-preservation metadata, so do not use it merely to bypass a blocked
+delete or reorder.
+
 ## MCP unavailable
 
-If neither host bridge nor a matching direct app MCP tool is actually available,
-stop before any state-changing UI action. Say whether the page advertised MCP
-and which host capability is missing. Never fall back to click, type, drag, or
-keyboard automation from `/webmcp`; only an explicit request to use UI
-automation for this specific operation changes that. In particular, a missing
-exact verb is not permission to click when a discovered composite action can
-express it, and a generic reply to continue is not permission to switch to UI
-automation. Do not silently treat a tool-list failure, manifest fetch, tool
-acknowledgment, or queued task as proof that an edit completed.
+If neither host bridge nor a matching direct app MCP tool is actually available
+after the bounded evaluator confirmation, stop before any state-changing UI
+action. Say whether the page advertised MCP and which host capability is
+missing. Never fall back to click, type, drag, or keyboard automation from
+`/webmcp`; only an explicit request to use UI automation for this specific
+operation changes that. In particular, a missing exact verb is not permission
+to click when a discovered composite action can express it, and a generic reply
+to continue is not permission to switch to UI automation. Do not silently treat
+a tool-list failure, manifest fetch, tool acknowledgment, or queued task as
+proof that an edit completed.
 
 For Slides, delete slides through the discovered `patch-deck` action with
 `operations: [{ op: "delete-slide", slideId: "..." }]` after reading stable
 slide IDs. There is no need for a separate `delete-slide` tool or a keyboard
 shortcut.
 
-Keep this failure fast. Do not spend more than one discovery pass trying
-unsupported capability names or invocation signatures, and do not loop on
-console, DOM, CDP, or hidden-global probes.
+Keep this failure fast. Do not spend more than one discovery pass and one
+independent evaluator confirmation trying unsupported capability names or
+invocation signatures, and do not loop on console, DOM, CDP, or hidden-global
+probes.
 
 Do not hand-build raw authenticated HTTP requests as a substitute for a
 host-provided MCP tool. If the page requires sign-in, keep authentication in
