@@ -17,14 +17,22 @@ the request to complete in that same tab.
 If the page is signed out, the skill leaves the tab open and asks the user to
 sign in there, then resumes discovery after the user replies.
 
-When the task requires app communication, try these paths in order:
+When the task requires app communication, use the first path that is actually
+exposed, with one bounded discovery pass:
 
-1. A host browser-session or host WebMCP bridge.
-2. MCP-B local relay tools, starting with `webmcp_list_sources` and
-   `webmcp_list_tools`.
-3. The browser host's JavaScript evaluator, calling
-   `document.modelContext.getTools()` and then
-   `document.modelContext.executeTool()` with the exact listed descriptor.
+1. A host browser-session or host WebMCP bridge, if its list and run tools are
+   available to the agent.
+2. MCP-B local relay tools, if they are listed by the host.
+3. The browser host's live-page JavaScript evaluator. In Codex CUA, use
+   `tab.playwright.evaluate` or the exposed CDP `Runtime.evaluate`; in Cowork,
+   use its equivalent page evaluator. Call `document.modelContext.getTools()`
+   and `document.modelContext.executeTool()` in the same page context with the
+   exact listed descriptor.
+
+Do not rely on `tab.capabilities.get("webmcp").fetchTools()`, copy a descriptor
+out of the page to call it, guess alternate signatures, or use a visible
+developer console. `document.modelContext` is canonical, and the framework
+passes schema-shaped input as `JSON.stringify(args)`.
 
 Read the current screen or context before state-dependent work, use the
 smallest named mutation, and read the result back before reporting success.
@@ -33,7 +41,8 @@ Do not click, double-click, type, drag, or use browser DOM automation when a
 matching MCP tool or JavaScript evaluator is available. Do not use the visible
 developer console as a substitute. If the host cannot discover or invoke MCP
 and has no JavaScript evaluator, stop before a state-changing UI fallback and
-report that limitation.
+report that limitation. A missing `document.modelContext` is a fast unsupported
+result, not a reason to loop.
 
 ## Install
 

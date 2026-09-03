@@ -1,4 +1,4 @@
 interface:
-  display_name: "WebMCP Browser"
-  short_description: "Open in-app pages and use MCP first"
-  default_prompt: "Use $webmcp with the URL and full request, wait for sign-in if needed, then use the host bridge, WebMCP relay, or browser JavaScript evaluator before UI automation."
+  display_name: "WebMCP"
+  short_description: "Open pages and use WebMCP first"
+  default_prompt: "Use $webmcp with the URL and full request. Reuse or open it in the built-in browser, wait for sign-in if needed, then make one bounded discovery pass: use an exposed host bridge or relay, otherwise call document.modelContext.getTools() and executeTool() in the live page evaluator. Do not probe unsupported wrappers, guess signatures, or fall back to UI automation without asking."

@@ -45,21 +45,30 @@ tool descriptors or a failed result from before authentication.
 
 ## Find and use page tools through the host
 
-After navigation and authentication, discover tools in this order:
+After navigation and authentication, make one bounded discovery pass. A host
+bridge is useful only when its list and run tools are actually exposed to the
+agent. Do not treat a capability wrapper, a manifest, or a failed
+`fetchTools()` helper as the page's WebMCP surface.
 
-- Prefer a host bridge when one is exposed. In a connected browser tab, use
-  `list-browser-session-webmcp-tools`; in an embedded or sidecar page, use
-  `list-host-webmcp-tools`. Run the matching `run-browser-session-webmcp-tool`
-  or `run-host-webmcp-tool` with the exact discovered name, origin, and args.
-- If the host has the MCP-B local relay configured, use its MCP tools. Call
-  `webmcp_list_sources`, then `webmcp_list_tools`, then the exact dynamic tool
-  name returned for the requested tab. Refresh the list after navigation or
-  authentication.
-- If neither bridge is available, use the browser host's JavaScript evaluation
-  tool, such as its Playwright or Chrome DevTools evaluate capability. Evaluate
-  the WebMCP API in the live page, not in a visible developer-console tab:
+- If the host exposes a browser-session or host WebMCP bridge, call its listed
+  list tool once, then its matching run tool with the exact discovered name,
+  origin, and args.
+- If the host exposes MCP-B relay tools, call the listed source/tool discovery
+  tool once and use the exact dynamic tool returned for the requested tab.
+- Otherwise use the host's live-page JavaScript evaluator immediately. In
+  Codex CUA this is `tab.playwright.evaluate` or an already-exposed CDP
+  `Runtime.evaluate` with `awaitPromise: true` and `returnByValue: true`. In
+  Cowork, use the equivalent page evaluator. Do not open or type into a
+  developer console.
 
-  ```js
+For a direct page call, keep listing and execution in the same page context so
+the host never tries to serialize or call a page-owned callback:
+
+```js
+const result = await tab.playwright.evaluate(async () => {
+  if (!document.modelContext) {
+    return { supported: false };
+  }
   const tools = await document.modelContext.getTools();
   const tool = tools.find(({ name }) => name === TOOL_NAME);
   if (!tool) throw new Error(`WebMCP tool ${TOOL_NAME} is unavailable`);
@@ -68,16 +77,22 @@ After navigation and authentication, discover tools in this order:
     JSON.stringify(ARGS),
   );
   return typeof result === "string" ? JSON.parse(result) : result;
-  ```
+});
+```
 
-  Replace `TOOL_NAME` and `ARGS` with the discovered tool name and
-  schema-shaped arguments. `document.modelContext` is the canonical page API;
-  `navigator.modelContext` is deprecated. This is a direct call into the
-  current page's registered function, not a raw HTTP request or DOM automation.
+Replace `TOOL_NAME` and `ARGS` with the exact listed name and schema-shaped
+arguments. `document.modelContext` is the canonical page API;
+`navigator.modelContext` is deprecated. The framework's WebMCP surface accepts
+the schema-shaped input as a JSON string. The descriptor is not a callable
+`run()` function, so do not copy it out of the page and invoke it from the
+host.
 
-Use the first path that is actually available. Do not claim that a manifest or
-`document.modelContext` check proves the host can invoke tools. The host must
-provide either a bridge, a relay, or a JavaScript evaluation capability.
+Use the first working path. Do not probe hidden globals, guess alternate method
+signatures, or retry the same unavailable surface. A null or undefined
+`document.modelContext` means this page/host cannot use direct WebMCP; report
+that immediately. An empty list means the page advertised WebMCP but exposed
+no tools. Allow at most one fresh discovery after the user signs in or the page
+navigates.
 
 After discovery:
 
@@ -89,9 +104,8 @@ After discovery:
    success.
 
 List immediately before execution because page tools can change after
-navigation, authentication, and selection changes. If using JavaScript
-evaluation, call `getTools()` immediately before `executeTool()` and pass the
-descriptor returned by that same listing.
+navigation, authentication, and selection changes. With JavaScript evaluation,
+call `getTools()` immediately before `executeTool()` in the same evaluation.
 
 Do not click, double-click, type, drag, or use browser DOM automation to perform
 an app operation when a matching MCP tool is available. UI controls may be used
@@ -121,6 +135,10 @@ stop before any state-changing UI action. Say whether the page advertised MCP
 and which host capability is missing. Ask the user before using click or type
 automation as a fallback. Do not silently treat a tool-list failure, manifest
 fetch, tool acknowledgment, or queued task as proof that an edit completed.
+
+Keep this failure fast. Do not spend more than one discovery pass trying
+unsupported capability names or invocation signatures, and do not loop on
+console, DOM, CDP, or hidden-global probes.
 
 Do not hand-build raw authenticated HTTP requests as a substitute for a
 host-provided MCP tool. If the page requires sign-in, keep authentication in
