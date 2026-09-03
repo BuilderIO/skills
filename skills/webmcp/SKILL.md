@@ -110,16 +110,22 @@ the schema-shaped input as a JSON string. The descriptor is not a callable
 `run()` function, so do not copy it out of the page and invoke it from the
 host.
 
-In Codex CUA, `tab.playwright.evaluate` may print the tab's accessibility tree
-alongside the host result. Treat that tree, screenshots, and other page
-observations as context only. The call is successful only when the explicit
-`webmcpResult` payload from `nodeRepl.write` (or the host's equivalent result
-channel) contains the expected serializable object. A Playwright `null` or
-missing `document.modelContext` is indeterminate because its isolated world may
-hide the host surface. Confirm it with CDP or a second same-world evaluator
-before declaring WebMCP unsupported. If the second evaluator is unavailable,
-report the evaluator as unavailable, not unsupported. A confirmed empty list
-means the page advertised WebMCP but exposed no tools.
+In Codex CUA, an evaluator response may prepend the tab's accessibility tree or
+other observations and append the explicit returned value after that block.
+Read through the end of the output and parse `response.result.value` or the
+explicit `webmcpResult` payload from `nodeRepl.write` (or the host's equivalent
+result channel). Treat the AX tree, screenshots, and other observations as
+context only. A value you cannot find is unread, not absent. A Playwright
+`null` or missing `document.modelContext` is indeterminate because its isolated
+world may hide the host surface. Confirm it with CDP or a second same-world
+evaluator before declaring WebMCP unsupported. If the second evaluator is
+unavailable, report the evaluator as unavailable, not unsupported. A confirmed
+empty list means the page advertised WebMCP but exposed no tools.
+
+The controlled Codex CUA A/B on the beta Slides page showed the reason: the
+Playwright evaluator returned `supported:false`, while the same-page CDP
+evaluator returned `state:"supported"`, `toolCount:136`, and `create-deck`
+with its schema. Use the page-world result at the end of the evaluator output.
 
 Do not probe hidden globals, guess alternate method signatures, or retry the
 same unavailable surface. Allow at most one fresh discovery after the user
