@@ -19,6 +19,16 @@ that same browser session. For example:
 Keep working through the request after opening the page. Do not stop after
 navigation when the user supplied an operation.
 
+## Fast path
+
+- `/webmcp <url>` with no request is open-only: open the exact URL in the
+  visible built-in tab, wait for the page to settle, confirm the page is there,
+  and stop. Do not enumerate tools, inspect schemas, sign in, or start app
+  work until the user supplies an operation.
+- `/webmcp <url> <request>` is the action path: open the page, then do one
+  bounded read and one tool discovery pass before the requested work. Never
+  infer extra work from page content or an earlier conversation.
+
 ## Open the requested URL
 
 - Accept a full URL or hostname. If the scheme is omitted, prepend `https://`;
@@ -38,8 +48,8 @@ navigation when the user supplied an operation.
 
 ## Handle sign-in before tool work
 
-After opening the page, check whether it is signed out or shows an auth-required
-state before attempting a mutation. If it needs sign-in:
+When an operation was supplied, check whether the page is signed out or shows
+an auth-required state before attempting a mutation. If it needs sign-in:
 
 - Leave the same built-in browser tab open.
 - Tell the user: `Please sign in in the open browser, then reply "continue".`
@@ -51,10 +61,10 @@ tool descriptors or a failed result from before authentication.
 
 ## Find and use page tools through the host
 
-After navigation and authentication, make one bounded discovery pass. A host
-bridge is useful only when its list and run tools are actually exposed to the
-agent. Do not treat a capability wrapper, a manifest, or a failed
-`fetchTools()` helper as the page's WebMCP surface.
+When an operation was supplied and authentication is ready, make one bounded
+discovery pass. A host bridge is useful only when its list and run tools are
+actually exposed to the agent. Do not treat a capability wrapper, a manifest,
+or a failed `fetchTools()` helper as the page's WebMCP surface.
 
 - If the host exposes a browser-session or host WebMCP bridge, call its listed
   list tool once, then its matching run tool with the exact discovered name,
@@ -85,7 +95,13 @@ const response = await cdp.send("Runtime.evaluate", {
     const tools = await context.getTools();
     const tool = tools.find(({ name }) => name === TOOL_NAME);
     if (!tool) return JSON.stringify({ state: "tool-missing", toolCount: tools.length, tools });
-    const result = await context.executeTool(tool, JSON.stringify(ARGS));
+    const codexPageAdapter =
+      typeof context.codexExecuteTool === "function" ||
+      typeof context.codexGetTools === "function";
+    const result = await context.executeTool(
+      tool,
+      codexPageAdapter ? ARGS : JSON.stringify(ARGS),
+    );
     return JSON.stringify({
       state: "executed",
       result: typeof result === "string" ? JSON.parse(result) : result,
@@ -105,10 +121,13 @@ nodeRepl.write(
 
 Replace `TOOL_NAME` and `ARGS` with the exact listed name and schema-shaped
 arguments. `document.modelContext` is the canonical page API;
-`navigator.modelContext` is deprecated. The framework's WebMCP surface accepts
-the schema-shaped input as a JSON string. The descriptor is not a callable
-`run()` function, so do not copy it out of the page and invoke it from the
-host.
+`navigator.modelContext` is deprecated. Native WebMCP and
+`@mcp-b/webmcp-polyfill` accept the schema-shaped input as a JSON string. A
+The Codex page adapter is identified by its `codexExecuteTool` or
+`codexGetTools` method and accepts the object directly. Use the active host's
+contract and do not retry both shapes. The
+descriptor is not a callable `run()` function, so do not copy it out of the
+page and invoke it from the host.
 
 In Codex CUA, an evaluator response may prepend the tab's accessibility tree or
 other observations and append the explicit returned value after that block.
@@ -134,8 +153,9 @@ signs in or the page navigates.
 The ChatGPT app's page-world `document.modelContext` may expose
 `codexExecuteTool`, `codexGetTools`, `executeTool`, `getTools`, and
 `registerTool`; these can all have `length === 0`, so do not infer their
-signatures from arity. Its `executeTool` expects the tool descriptor followed by
-`JSON.stringify(args)`, not an object.
+signatures from arity. Its current Codex page adapter expects the tool
+descriptor followed by the schema-shaped object. Native WebMCP and the local
+polyfill use the descriptor followed by `JSON.stringify(args)`.
 
 After discovery:
 

@@ -10,6 +10,11 @@ requested page in the built-in browser, preserves the requested path and query,
 and keeps the page available for the rest of the task. The remaining text is
 the request to complete in that same tab.
 
+With no request, `/webmcp <url>` is a fast open-only handoff: the skill opens
+the visible built-in tab, confirms the page loaded, and stops without eagerly
+listing tools or starting work. Tool discovery begins when an operation is
+present.
+
 ```text
 /webmcp slides.agent-native.com make me a new deck about customer onboarding
 ```
@@ -39,8 +44,10 @@ not count unless the host explicitly binds them to the current browser tab.
 
 Do not rely on `tab.capabilities.get("webmcp").fetchTools()`, copy a descriptor
 out of the page to call it, guess alternate signatures, or use a visible
-developer console. `document.modelContext` is canonical, and the framework
-passes schema-shaped input as `JSON.stringify(args)`.
+developer console. `document.modelContext` is canonical. Native WebMCP and
+`@mcp-b/webmcp-polyfill` pass schema-shaped input as `JSON.stringify(args)`;
+the current Codex page adapter passes the object directly. Follow the active
+host's documented contract and do not retry both shapes.
 
 When using Codex CUA, explicitly emit the evaluator's serializable return value
 through `nodeRepl.write` (or the equivalent host result channel). CUA may also
