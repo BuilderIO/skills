@@ -68,9 +68,14 @@ or a failed `fetchTools()` helper as the page's WebMCP surface.
 
 - If the host exposes a browser-session or host WebMCP bridge, call its listed
   list tool once, then its matching run tool with the exact discovered name,
-  origin, and args.
+  origin, and args. In a connected browser tab that bridge is usually
+  `list-browser-session-webmcp-tools` with `run-browser-session-webmcp-tool`;
+  in an embedded or sidecar page it is `list-host-webmcp-tools` with
+  `run-host-webmcp-tool`.
 - If the host exposes MCP-B relay tools, call the listed source/tool discovery
-  tool once and use the exact dynamic tool returned for the requested tab.
+  tool once and use the exact dynamic tool returned for the requested tab —
+  `webmcp_list_sources`, then `webmcp_list_tools`, then that dynamic name.
+  Refresh the list after navigation or authentication.
 - Otherwise use the host's live-page JavaScript evaluator immediately. In
   Codex CUA, use `tab.capabilities.get("cdp")` and CDP `Runtime.evaluate` first
   so the expression runs in the page world where host-injected globals live. In
