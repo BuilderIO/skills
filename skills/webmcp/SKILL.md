@@ -24,9 +24,15 @@ navigation when the user supplied an operation.
 - Accept a full URL or hostname. If the scheme is omitted, prepend `https://`;
   preserve the host, path, query, and hash exactly. Never guess beta or
   production variants or replace the request with an external browser.
-- Reuse an existing matching tab without reloading. Otherwise open it in the
-  host's built-in or in-app browser. Make it visible when the user asks to open
-  it and keep it open as the requested deliverable.
+- The browser target is part of this skill: use the host's built-in or in-app
+  browser, never a normal Chrome/Edge tab or browser-extension session. A
+  matching URL in an external browser does not satisfy the request.
+- Reuse an existing matching tab only when it belongs to the built-in browser.
+  Otherwise create a new built-in tab for the exact URL, make it visible, and
+  keep it open as the requested deliverable. In Codex CUA, use the `iab`
+  browser (`cua.getTab(tabId, { browser: "iab" })` or
+  `cua.createBrowserTab("iab", url, { visible: true })`), never
+  `browser: "chrome"` for `/webmcp`.
 - Read the page after it loads. Opening the URL is enough if no operation
   follows.
 
@@ -60,12 +66,15 @@ agent. Do not treat a capability wrapper, a manifest, or a failed
   `Runtime.evaluate` with `awaitPromise: true` and `returnByValue: true`. In
   Cowork, use the equivalent page evaluator. Do not open or type into a
   developer console.
+- Do not substitute a generic `tool-search`, unrelated app connector,
+  `ask_app`, or remote API for the current tab's page tools unless the host
+  explicitly binds it to that browser session.
 
 For a direct page call, keep listing and execution in the same page context so
 the host never tries to serialize or call a page-owned callback:
 
 ```js
-const result = await tab.playwright.evaluate(async () => {
+const snapshot = await tab.playwright.evaluate(async () => {
   if (!document.modelContext) {
     return { supported: false };
   }
@@ -78,6 +87,7 @@ const result = await tab.playwright.evaluate(async () => {
   );
   return typeof result === "string" ? JSON.parse(result) : result;
 });
+nodeRepl.write(JSON.stringify({ webmcpResult: snapshot }));
 ```
 
 Replace `TOOL_NAME` and `ARGS` with the exact listed name and schema-shaped
@@ -86,6 +96,15 @@ arguments. `document.modelContext` is the canonical page API;
 the schema-shaped input as a JSON string. The descriptor is not a callable
 `run()` function, so do not copy it out of the page and invoke it from the
 host.
+
+In Codex CUA, `tab.playwright.evaluate` may print the tab's accessibility tree
+alongside the host result. Treat that tree, screenshots, and other page
+observations as context only. The call is successful only when the explicit
+`webmcpResult` payload from `nodeRepl.write` (or the host's equivalent result
+channel) contains the expected serializable object. If no explicit evaluator
+result is surfaced, classify the evaluator as unavailable and stop; do not
+infer support or tools from the accessibility tree and do not loop through
+alternate probes.
 
 Use the first working path. Do not probe hidden globals, guess alternate method
 signatures, or retry the same unavailable surface. A null or undefined
@@ -98,7 +117,10 @@ After discovery:
 
 1. For any state-dependent operation, call the page's current-screen or
    context read first. Use the exact IDs and selection metadata returned there.
-2. Call the smallest named MCP mutation that satisfies the request. Keep
+2. Call the smallest named MCP mutation that satisfies the request. Inspect
+   the discovered input schema for operation variants before concluding that a
+   capability is missing; a composite action may own the exact operation (for
+   example, Slides `patch-deck` accepts a `delete-slide` operation). Keep
    unrelated content untouched.
 3. Read the result back with the appropriate MCP read tool and only then report
    success.
@@ -132,9 +154,18 @@ without one long, fragile tool call.
 
 If neither host bridge nor a matching direct app MCP tool is actually available,
 stop before any state-changing UI action. Say whether the page advertised MCP
-and which host capability is missing. Ask the user before using click or type
-automation as a fallback. Do not silently treat a tool-list failure, manifest
-fetch, tool acknowledgment, or queued task as proof that an edit completed.
+and which host capability is missing. Never fall back to click, type, drag, or
+keyboard automation from `/webmcp`; only an explicit request to use UI
+automation for this specific operation changes that. In particular, a missing
+exact verb is not permission to click when a discovered composite action can
+express it, and a generic reply to continue is not permission to switch to UI
+automation. Do not silently treat a tool-list failure, manifest fetch, tool
+acknowledgment, or queued task as proof that an edit completed.
+
+For Slides, delete slides through the discovered `patch-deck` action with
+`operations: [{ op: "delete-slide", slideId: "..." }]` after reading stable
+slide IDs. There is no need for a separate `delete-slide` tool or a keyboard
+shortcut.
 
 Keep this failure fast. Do not spend more than one discovery pass trying
 unsupported capability names or invocation signatures, and do not loop on

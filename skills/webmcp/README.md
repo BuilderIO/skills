@@ -14,6 +14,10 @@ the request to complete in that same tab.
 /webmcp slides.agent-native.com make me a new deck about customer onboarding
 ```
 
+“Built-in browser” means the host's in-app browser, not a matching Chrome or
+Edge tab. If the URL is already open externally, open a separate in-app tab for
+the exact URL. In Codex CUA, use the `iab` browser and make the tab visible.
+
 If the page is signed out, the skill leaves the tab open and asks the user to
 sign in there, then resumes discovery after the user replies.
 
@@ -29,20 +33,37 @@ exposed, with one bounded discovery pass:
    and `document.modelContext.executeTool()` in the same page context with the
    exact listed descriptor.
 
+Generic `tool-search`, unrelated app connectors, `ask_app`, and remote APIs do
+not count unless the host explicitly binds them to the current browser tab.
+
 Do not rely on `tab.capabilities.get("webmcp").fetchTools()`, copy a descriptor
 out of the page to call it, guess alternate signatures, or use a visible
 developer console. `document.modelContext` is canonical, and the framework
 passes schema-shaped input as `JSON.stringify(args)`.
 
-Read the current screen or context before state-dependent work, use the
-smallest named mutation, and read the result back before reporting success.
+When using Codex CUA, explicitly emit the evaluator's serializable return value
+through `nodeRepl.write` (or the equivalent host result channel). CUA may also
+show the tab's accessibility tree in the same result. That tree is observation,
+not the WebMCP return value. If the explicit result is missing, stop and report
+the evaluator as unavailable instead of treating the AX tree as a tool list or
+trying hidden probes.
+
+Read the current screen or context before state-dependent work, inspect the
+discovered schema for composite operation variants, use the smallest matching
+mutation, and read the result back before reporting success. A missing exact
+verb is not proof that the capability is unavailable.
+
+For Slides, delete slides with the `patch-deck` WebMCP action and its
+`{ op: "delete-slide", slideId: "..." }` operation after reading stable slide
+IDs. Do not select thumbnails or press Delete when that action is available.
 
 Do not click, double-click, type, drag, or use browser DOM automation when a
 matching MCP tool or JavaScript evaluator is available. Do not use the visible
 developer console as a substitute. If the host cannot discover or invoke MCP
-and has no JavaScript evaluator, stop before a state-changing UI fallback and
-report that limitation. A missing `document.modelContext` is a fast unsupported
-result, not a reason to loop.
+and has no JavaScript evaluator, stop before any state-changing UI fallback and
+report that limitation. Only an explicit request to use UI automation for that
+specific operation changes this. A missing `document.modelContext` is a fast
+unsupported result, not a reason to loop.
 
 ## Install
 
