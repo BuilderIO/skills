@@ -164,8 +164,10 @@ polyfill use the descriptor followed by `JSON.stringify(args)`.
 
 After discovery:
 
-1. For any state-dependent operation, call the page's current-screen or
-   context read first. Use the exact IDs and selection metadata returned there.
+1. For state-dependent work, call the page's current-screen or context read
+   only when the target IDs or selection are not already in context. Current
+   selection or item metadata is enough for a focused edit; do not turn it into
+   a full collection read.
 2. Call the smallest named MCP mutation that satisfies the request. Inspect
    the discovered input schema for operation variants before concluding that a
    capability is missing; a composite action may own the exact operation (for
@@ -177,6 +179,27 @@ After discovery:
 List immediately before execution because page tools can change after
 navigation, authentication, and selection changes. With JavaScript evaluation,
 call `getTools()` immediately before `executeTool()` in the same evaluation.
+This refreshes the callable descriptor, not the app data: do not re-read a
+whole collection when the current context already identifies one item.
+
+### Focused edits
+
+Treat "this", "the selected text", a cursor, or a single named field as a
+focused operation. It does not mean inspect the whole parent document.
+
+- Use the current-screen or context result once when it is not already in the
+  request or page state. If it supplies a stable item/slide ID and a short
+  value, use those directly. If it supplies the selected item's identity and
+  typed operation fields accepted by the matching mutation, pass them through
+  verbatim.
+- Call the smallest mutation immediately. For text, prefer one literal
+  replacement with the exact selected value and `expectedMatches: 1` when the
+  action supports it.
+- If the value is a preview or truncated, the target is ambiguous, or the
+  literal edit reports no match, read only the resource named by its ID. Then
+  retry the same small mutation with the returned content or hash.
+- Verify the changed item with a targeted read or the mutation result. A
+  full-document read is for broad or structural work only.
 
 ## Fast execution
 
@@ -187,11 +210,13 @@ Once an operation is supplied, keep discovery and execution bounded:
   as soon as it is present. If it is not present while the page is still
   registering, wait briefly outside the page and make one fresh same-world
   discovery. A value you cannot find is unread, not absent.
-- When `window.__agentNativeWebMcpStatus` exists, it is authoritative: it
-  reports `registering`, `ready`, or `failed` with registered/total counts, so a
-  partial list is distinguishable from a complete one. Prefer it over any
-  heuristic. It ships with an `@agent-native/core` release later than
-  2026-09-03, so treat its absence as "unknown" and fall back to these rules.
+- Read `window.__agentNativeWebMcpStatus` as the primary readiness check. It
+  reports `registering`, `ready`, or `failed` with registered/total counts, so
+  a partial list is distinguishable from a complete one. While it is
+  `registering`, wait briefly outside the page and make one fresh discovery;
+  `ready` makes a missing tool meaningful, and `failed` is a registration
+  failure to report. If the status is absent, treat readiness as unknown and
+  use the fallback discovery rules below.
 - If a previously captured descriptor fails with `RegisteredTool must be an
   object` or `not found in registry`, that is registry staleness, never a
   missing tool. Refresh the target descriptor and re-execute immediately with
@@ -311,6 +336,7 @@ prompts or tool inputs; let the user complete any required sign-in or approval.
 `/webmcp slides.agent-native.com make me a new deck about customer onboarding`
 opens `https://slides.agent-native.com` in the built-in browser, waits for the
 user to sign in if needed, discovers the live page tools, creates an empty deck,
-and adds slides one at a time. For a focused edit, inspect the current screen,
-use the smallest supported slide-edit action, and read the slide back. Do not
-double-click the canvas and type replacement text.
+and adds slides one at a time. For a focused edit, inspect the current screen
+only when its target is not already known, use the smallest supported action
+with an exact-match guard, and read only that item back. Do not fetch the full
+deck or double-click the canvas and type replacement text.
