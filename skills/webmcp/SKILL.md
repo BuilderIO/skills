@@ -122,8 +122,8 @@ nodeRepl.write(
 Replace `TOOL_NAME` and `ARGS` with the exact listed name and schema-shaped
 arguments. `document.modelContext` is the canonical page API;
 `navigator.modelContext` is deprecated. Native WebMCP and
-`@mcp-b/webmcp-polyfill` accept the schema-shaped input as a JSON string. A
-The Codex page adapter is identified by its `codexExecuteTool` or
+`@mcp-b/webmcp-polyfill` accept the schema-shaped input as a JSON string. The
+Codex page adapter is identified by its `codexExecuteTool` or
 `codexGetTools` method and accepts the object directly. Use the active host's
 contract and do not retry both shapes. The
 descriptor is not a callable `run()` function, so do not copy it out of the
@@ -172,6 +172,26 @@ After discovery:
 List immediately before execution because page tools can change after
 navigation, authentication, and selection changes. With JavaScript evaluation,
 call `getTools()` immediately before `executeTool()` in the same evaluation.
+
+## Fast execution
+
+Once an operation is supplied, keep discovery and execution bounded:
+
+- Do not wait for the registry to reach a stable count or enumerate every
+  schema. Registration can be progressive; find the required tool and execute
+  as soon as it is present. If it is not present while the page is still
+  registering, wait briefly outside the page and make one fresh same-world
+  discovery. A value you cannot find is unread, not absent.
+- If a previously captured descriptor fails with `RegisteredTool must be an
+  object` or `not found in registry`, treat that as registry staleness. Refresh
+  the target descriptor and retry once with the active host's invocation
+  contract. Do not busy-loop, guess signatures, or retry an unsupported tool.
+- Batch two to four dependent calls per evaluator invocation and return a
+  compact summary with the immediate readback. Keep large generation flows
+  incremental so the user gets control back quickly.
+- Keep the built-in browser pane visible while tools register. If navigation
+  reports an error, verify the actual URL before retrying because the page may
+  have loaded.
 
 Do not click, double-click, type, drag, or use browser DOM automation to perform
 an app operation when a matching MCP tool is available. UI controls may be used

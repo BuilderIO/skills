@@ -42,6 +42,11 @@ exposed, with one bounded discovery pass:
 Generic `tool-search`, unrelated app connectors, `ask_app`, and remote APIs do
 not count unless the host explicitly binds them to the current browser tab.
 
+Keep this path fast: do not wait for a stable registry count or enumerate every
+schema. Find the requested tool as soon as it appears, refresh once if a stale
+descriptor is rejected, and batch two to four dependent calls with a compact
+readback. Keep the browser pane visible while tools register.
+
 Do not rely on `tab.capabilities.get("webmcp").fetchTools()`, copy a descriptor
 out of the page to call it, guess alternate signatures, or use a visible
 developer console. `document.modelContext` is canonical. Native WebMCP and
