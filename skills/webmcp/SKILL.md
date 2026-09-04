@@ -129,15 +129,25 @@ into a developer console.
 - Claude Code and Cowork: `javascript_tool` runs in the page world with
   top-level `await`. Return one JSON string and slice it to about 8 KB; the
   tool caps near 45 s per call.
-- Codex CUA: call `await agent.documentation.get("capabilities/tab/cdp")` once
-  per session, then `const cdp = await tab.capabilities.get("cdp")` and
+- Codex CUA: Codex has its own WebMCP bridge (`tab.capabilities.get("webmcp")`
+  with `fetchTools()`), so try it once per session first; through 2026-09 it
+  answers `does not support command "webmcp_list_tools"` for the current
+  model, and that error means the bridge is unavailable for the rest of the
+  session, not that the page lacks tools. Then use the page-world evaluator:
+  `const cdp = await tab.capabilities.get("cdp")`, `await cdp.documentation()`
+  once per session (the first CDP call fails without it), then
   `cdp.send("Runtime.evaluate", { expression, awaitPromise: true,
-  returnByValue: true })`, and emit `response.result.value` with
+  returnByValue: true })` and emit `response.result.value` with
   `nodeRepl.write(...)`. The CDP command dies at about 3 s ("Timed out running
-  CDP command"), which most writes exceed, so pass `{ waitMs: 0 }` to `call`
-  and read `an.result(id)` on the next evaluation. A timed-out evaluator is an
-  unread result, never a failed write; do not re-issue the write. Playwright's
-  isolated world cannot see the helper or `document.modelContext`; use CDP.
+  CDP command"), so pass `{ waitMs: 2000 }` to `call`: reads and most writes
+  settle inside that and come back done in the same evaluation, and only a
+  slow write returns `pending`, which `an.result(id)` reads on the next
+  evaluation. Never pair every call with a `result()` read by default; that
+  doubles the round trips. A timed-out evaluator is an unread result, never a
+  failed write; do not re-issue the write. Do not open with `tab.getAXState()`
+  when the request is an app operation; `view-screen` is the screen read.
+  Playwright's isolated world cannot see the helper or `document.modelContext`;
+  use CDP.
 - Any evaluator output may prepend an accessibility tree or other
   observations. Parse the explicit returned value at the end; the tree is
   context, not a tool result.
@@ -156,9 +166,11 @@ remote API for the current tab's page tools.
    (Slides prints `deckId`, `currentSlideId`, and `currentSlideContentHash`
    with the tool that takes each). Use those values verbatim. Skip it when
    the request already carries the ids.
-2. Pick the tool by name from `tools(filter)`. Read `describe(name)` only when
-   the summary's `required` list and description do not settle the args. The
-   primary pairs are: Slides `get-deck` / `update-slide` (`edits: [{ op:
+2. Pick the tool by name. When the screen read or this skill already names
+   the tool and its arguments (Slides' `view-screen` prints the exact ids and
+   hash for `update-slide`), call it directly; `tools(filter)` and
+   `describe(name)` are for unfamiliar apps and unsettled args, not a ritual
+   before every edit. The primary pairs are: Slides `get-deck` / `update-slide` (`edits: [{ op:
    "replace", find, replace, expectedMatches: 1 }]`, plus `patch-deck` for
    structure); Content `get-document` / `edit-document` (find/replace);
    Design `get-design-snapshot` / `edit-design`; Forms `get-form` /
@@ -178,10 +190,23 @@ remote API for the current tab's page tools.
 
 Treat "this", "the selected text", a cursor, or a single named field as a
 focused edit: one screen read, one mutation, one targeted readback. A
-full-document read is for broad or structural work only. Do not click,
+full-document read is for broad or structural work only. Scope follows the
+words, not the selection: "this text" or "the selected text" means the
+selection, while "this slide", "this screen", or "this section" means the
+whole current item even when a text selection happens to exist. Do not click,
 double-click, type, drag, or use DOM automation to perform an app operation
 when a matching tool exists; UI controls are for navigation and visual
 inspection.
+
+For a style change (dark mode, a new palette, "match the others"), the item
+you edit is one of many and the user expects it to look like its siblings.
+Read the shared style first and reuse those values: Slides prints a
+"Deck style" section in `view-screen` (backgrounds, text and accent colors,
+fonts, heading sizes across all slides, with the deviating slide named);
+Design has `index-design-tokens`; Forms' `get-form` carries the theme and the
+other fields' conventions; Analytics' `get-sql-dashboard` shows the existing
+panels. Introduce a color or font the document does not already use only when
+the user asks for it.
 
 ## Errors
 
