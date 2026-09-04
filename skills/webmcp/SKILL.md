@@ -202,11 +202,15 @@ For a style change (dark mode, a new palette, "match the others"), the item
 you edit is one of many and the user expects it to look like its siblings.
 Read the shared style first and reuse those values: Slides prints a
 "Deck style" section in `view-screen` (backgrounds, text and accent colors,
-fonts, heading sizes across all slides, with the deviating slide named);
-Design has `index-design-tokens`; Forms' `get-form` carries the theme and the
-other fields' conventions; Analytics' `get-sql-dashboard` shows the existing
-panels. Introduce a color or font the document does not already use only when
-the user asks for it.
+fonts, heading sizes across all slides, with the deviating slide named) and a
+`representativeSlide` id; Design has `index-design-tokens`; Forms' `get-form`
+carries the theme and the other fields' conventions; Analytics'
+`get-sql-dashboard` shows the existing panels. The counts settle colors and
+fonts only. For anything about composition (spacing, element order, sizes,
+"make it look like the others"), read one real sibling the way you would open
+a neighboring source file: in Slides, `get-deck` with the named
+`representativeSlide` id, then mirror its structure. Introduce a color or font
+the document does not already use only when the user asks for it.
 
 ## Errors
 
