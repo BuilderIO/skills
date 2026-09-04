@@ -10,24 +10,53 @@ metadata:
 
 # WebMCP
 
-Use `/webmcp <url> [request]` when the user wants to open or operate a web app.
-The first token is the URL and the remaining text is the request to complete in
-that same browser session. For example:
+Use `/webmcp <url-or-app> [request]` when the user wants to open or operate a
+web app. The first token is the URL or a known Agent-Native app alias, and the
+remaining text is the request to complete in that same browser session. For
+example:
 
-`/webmcp slides.agent-native.com make me a new deck about customer onboarding`
+`/webmcp slides make me a new deck about customer onboarding`
+
+`/webmcp slides` is shorthand for `/webmcp slides.agent-native.com`.
 
 Keep working through the request after opening the page. Do not stop after
 navigation when the user supplied an operation.
 
+## Agent-Native app aliases
+
+Resolve a bare first token through this allowlist before URL handling. The
+alias must be the complete first token; keep explicit URLs and hostnames
+unchanged, and pass the remaining request text through unchanged.
+
+- `calendar` -> `calendar.agent-native.com`
+- `content` or `docs` -> `content.agent-native.com`
+- `slides` -> `slides.agent-native.com`
+- `video` or `videos` -> `videos.agent-native.com`
+- `analytics` -> `analytics.agent-native.com`
+- `mail` -> `mail.agent-native.com`
+- `dispatch` -> `dispatch.agent-native.com`
+- `forms` -> `forms.agent-native.com`
+- `issues` -> `issues.agent-native.com`
+- `recruiting` -> `recruiting.agent-native.com`
+- `clips` -> `clips.agent-native.com`
+- `design` -> `design.agent-native.com`
+- `images` -> `images.agent-native.com`
+- `calls` -> `calls.agent-native.com`
+- `meeting-notes` -> `meeting-notes.agent-native.com`
+- `scheduling` -> `scheduling.agent-native.com`
+- `voice` -> `voice.agent-native.com`
+- `plan` -> `plan.agent-native.com`
+
 ## Fast path
 
-- `/webmcp <url>` with no request is open-only: open the exact URL in the
+- `/webmcp <url-or-app>` with no request is open-only: open the resolved URL in the
   visible built-in tab, wait for the page to settle, confirm the page is there,
   and stop. Do not enumerate tools, inspect schemas, sign in, or start app
   work until the user supplies an operation.
-- `/webmcp <url> <request>` is the action path: open the page, then do one
-  bounded read and one tool discovery pass before the requested work. Never
-  infer extra work from page content or an earlier conversation.
+- `/webmcp <url-or-app> <request>` is the action path: resolve any alias, open
+  the page, then do one bounded read and one tool discovery pass before the
+  requested work. Never infer extra work from page content or an earlier
+  conversation.
 
 ## Open the requested URL
 
@@ -283,8 +312,9 @@ for navigation, visual inspection, and actions with no MCP equivalent.
 
 ## Slides generation workflow
 
-For Agent-Native Slides, `/webmcp slides.agent-native.com <request>` should
-use the discovered action tools. For a new generated deck:
+For Agent-Native Slides, `/webmcp slides <request>` resolves to
+`https://slides.agent-native.com` and should use the discovered action tools.
+For a new generated deck:
 
 1. Call `get-workspace-defaults` when it is available and no reference deck or
    design system was named.
@@ -334,7 +364,7 @@ prompts or tool inputs; let the user complete any required sign-in or approval.
 
 ## Example
 
-`/webmcp slides.agent-native.com make me a new deck about customer onboarding`
+`/webmcp slides make me a new deck about customer onboarding`
 opens `https://slides.agent-native.com` in the built-in browser, waits for the
 user to sign in if needed, discovers the live page tools, creates an empty deck,
 and adds slides one at a time. For a focused edit, inspect the current screen
