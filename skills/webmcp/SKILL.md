@@ -26,26 +26,25 @@ navigation when the user supplied an operation.
 
 Resolve a bare first token through this allowlist before URL handling. The
 alias must be the complete first token; keep explicit URLs and hostnames
-unchanged, and pass the remaining request text through unchanged.
+unchanged, and pass the remaining request text through unchanged. This mirrors
+the framework app catalog and intentionally excludes `chat`.
 
 - `calendar` -> `calendar.agent-native.com`
-- `content` or `docs` -> `content.agent-native.com`
+- `content` -> `content.agent-native.com`
+- `plan` -> `plan.agent-native.com`
 - `slides` -> `slides.agent-native.com`
-- `video` or `videos` -> `videos.agent-native.com`
+- `clips` -> `clips.agent-native.com`
+- `brain` -> `brain.agent-native.com`
 - `analytics` -> `analytics.agent-native.com`
 - `mail` -> `mail.agent-native.com`
 - `dispatch` -> `dispatch.agent-native.com`
 - `forms` -> `forms.agent-native.com`
-- `issues` -> `issues.agent-native.com`
-- `recruiting` -> `recruiting.agent-native.com`
-- `clips` -> `clips.agent-native.com`
 - `design` -> `design.agent-native.com`
-- `images` -> `images.agent-native.com`
-- `calls` -> `calls.agent-native.com`
-- `meeting-notes` -> `meeting-notes.agent-native.com`
-- `scheduling` -> `scheduling.agent-native.com`
-- `voice` -> `voice.agent-native.com`
-- `plan` -> `plan.agent-native.com`
+- `assets` -> `assets.agent-native.com`
+- `tasks` -> `tasks.agent-native.com`
+- `crm` -> `crm.agent-native.com`
+- `macros` -> `macros.agent-native.com`
+- `factory` -> `agent-native-factory.netlify.app`
 
 ## Fast path
 
