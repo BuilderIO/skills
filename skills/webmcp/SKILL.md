@@ -40,7 +40,6 @@ the framework app catalog and intentionally excludes `chat`.
 - `forms` -> `forms.agent-native.com`
 - `design` -> `design.agent-native.com`
 - `assets` -> `assets.agent-native.com`
-- `tasks` -> `tasks.agent-native.com`
 - `crm` -> `crm.agent-native.com`
 - `macros` -> `macros.agent-native.com`
 - `factory` -> `agent-native-factory.netlify.app`
@@ -166,18 +165,21 @@ remote API for the current tab's page tools.
    (Slides prints `deckId`, `currentSlideId`, and `currentSlideContentHash`
    with the tool that takes each). Use those values verbatim. Skip it when
    the request already carries the ids.
-2. Pick the tool by name. When the screen read or this skill already names
-   the tool and its arguments (Slides' `view-screen` prints the exact ids and
-   hash for `update-slide`), call it directly; `tools(filter)` and
-   `describe(name)` are for unfamiliar apps and unsettled args, not a ritual
-   before every edit. The primary pairs are: Slides `get-deck` / `update-slide` (`edits: [{ op:
-   "replace", find, replace, expectedMatches: 1 }]`, plus `patch-deck` for
-   structure); Content `get-document` / `edit-document` (find/replace);
-   Design `get-design-snapshot` / `edit-design`; Forms `get-form` /
+2. Pick the tool by name. The app's MCP `instructions` (also shown by
+   `an.ready()` hosts and in the WebMCP manifest) carry a "Key tools for this
+   app" line generated from the app's own list; those names are the index.
+   When the screen read or that line already names the tool and its
+   arguments (Slides' `view-screen` prints the exact ids and hash for
+   `update-slide`), call it directly; `tools(filter)` and `describe(name)` are
+   for unfamiliar apps and unsettled args, not a ritual before every edit.
+   Typical pairs: Slides `get-deck` / `update-slide` (`edits: [{ op:
+   "replace", find, replace, expectedMatches: 1 }]`, `patch-deck` for
+   structure); Content `get-document` / `edit-document`; Design
+   `get-design-snapshot` / `edit-design`; Forms `get-form` /
    `patch-form-fields`; Calendar `get-event` / `update-event`; Mail
-   `manage-draft` with `action: "create" | "update"` (`queue-email-draft`
-   assigns a draft to a teammate; it is not a compose draft); Tasks
-   `update-task`; CRM `update-crm-record`.
+   `manage-draft` (`queue-email-draft` assigns a draft to a teammate; it is
+   not a compose draft); CRM `update-crm-record`. A result's
+   `nextRequiredAction` names the next tool; follow it.
 3. Call the smallest mutation once with the exact ids. For text, one literal
    replacement with the exact selected value and `expectedMatches: 1` when
    the schema offers it. Keep unrelated content untouched.
@@ -187,6 +189,18 @@ remote API for the current tab's page tools.
    or wait to confirm what the readback already showed.
 5. Batch two to four dependent calls per evaluation on Claude Code; keep
    navigation out of batches. On Codex, one call per evaluation.
+
+You are the model for the whole request. "Generate a deck", "design a todo
+app", "write a landing page", "draft a form" means you author the content
+(the HTML, the slides, the fields) and save it through the app's create and
+update tools: Design `create-design` then `generate-design` (files JSON with
+`canvasFrames`) or `create-file`; Slides `create-deck` then `update-slide` /
+`patch-deck`; Content `create-document`; Forms `create-form`. Never hand the
+authoring to the app's built-in agent, never call a tool whose description
+says to stop and wait for the user's answer in the app (those answers go to
+the in-app chat, not to you), and never call `ask_app` when a named tool can
+do the work. If a decision is genuinely open, ask in your own chat and keep
+going with a stated default.
 
 Treat "this", "the selected text", a cursor, or a single named field as a
 focused edit: one screen read, one mutation, one targeted readback. A
