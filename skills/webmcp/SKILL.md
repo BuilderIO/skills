@@ -217,9 +217,11 @@ you edit is one of many and the user expects it to look like its siblings.
 Read the shared style first and reuse those values: Slides prints a
 "Deck style" section in `view-screen` (backgrounds, text and accent colors,
 fonts, heading sizes across all slides, with the deviating slide named) and a
-`representativeSlide` id; Design has `index-design-tokens`; Forms' `get-form`
-carries the theme and the other fields' conventions; Analytics'
-`get-sql-dashboard` shows the existing panels. The counts settle colors and
+`representativeSlide` id, and `get-deck` with `compact: "true"` returns the same
+`deckStyle` and `representativeSlideId` plus the linked `designSystem` (call
+`get-design-system` once when its scope is `summary`); Design has
+`index-design-tokens`; Forms' `get-form` carries the theme and the other fields'
+conventions; Analytics' `get-sql-dashboard` shows the existing panels. The counts settle colors and
 fonts only. For anything about composition (spacing, element order, sizes,
 "make it look like the others"), read one real sibling the way you would open
 a neighboring source file: in Slides, `get-deck` with the named
