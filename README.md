@@ -1,6 +1,6 @@
-# Skills for coding agents
+# Skills for agents
 
-Small, composable skills for coding agents.
+Small, composable skills for your favorite agent.
 
 ### Quick install recommended skills
 
