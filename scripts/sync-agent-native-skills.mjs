@@ -37,12 +37,14 @@ function resolveSources(sourcePath) {
       visualPlan: path.join(source, "visual-plan"),
       visualRecap: path.join(source, "visual-recap"),
       visualEdit: path.join(source, "visual-edit"),
+      an: path.join(source, "an"),
     },
     {
       label: "repo skills directory",
       visualPlan: path.join(source, "skills", "visual-plan"),
       visualRecap: path.join(source, "skills", "visual-recap"),
       visualEdit: path.join(source, "skills", "visual-edit"),
+      an: path.join(source, "skills", "an"),
     },
     {
       label: "Agent-Native app plugins",
@@ -58,17 +60,20 @@ function resolveSources(sourcePath) {
         source,
         ".agents/plugins/agent-native-design/skills/visual-edit",
       ),
+      an: path.join(source, ".agents/plugins/agent-native/skills/an"),
     },
     {
       label: "legacy framework skills",
       visualPlan: path.join(source, "skills", "visual-plans"),
       visualRecap: path.join(source, "skills", "visual-recap"),
       visualEdit: path.join(source, "skills", "visual-edit"),
+      an: path.join(source, "skills", "an"),
     },
   ];
 
   const match = candidates.find(
     (candidate) =>
+      hasSkill(candidate.an) &&
       hasSkill(candidate.visualPlan) &&
       hasSkill(candidate.visualRecap) &&
       hasSkill(candidate.visualEdit),
@@ -78,12 +83,12 @@ function resolveSources(sourcePath) {
     const checked = candidates
       .map(
         (candidate) =>
-          `- ${candidate.label}: ${candidate.visualPlan}, ${candidate.visualRecap}, and ${candidate.visualEdit}`,
+          `- ${candidate.label}: ${candidate.an}, ${candidate.visualPlan}, ${candidate.visualRecap}, and ${candidate.visualEdit}`,
       )
       .join("\n");
 
     throw new Error(
-      `Could not find visual-plan, visual-recap, and visual-edit skills from ${source}.\nChecked:\n${checked}`,
+      `Could not find an, visual-plan, visual-recap, and visual-edit skills from ${source}.\nChecked:\n${checked}`,
     );
   }
 
@@ -230,11 +235,13 @@ try {
 
   console.log(`Using ${sources.label}`);
   if (check) {
+    await assertSkillCurrent("an", sources.an);
     await assertSkillCurrent("visual-plan", sources.visualPlan);
     await assertSkillCurrent("visual-recap", sources.visualRecap);
     await assertSkillCurrent("visual-edit", sources.visualEdit);
     await assertGeneratedSkillCurrent("rewind", rewind);
   } else {
+    await copySkill("an", sources.an);
     await copySkill("visual-plan", sources.visualPlan);
     await copySkill("visual-recap", sources.visualRecap);
     await copySkill("visual-edit", sources.visualEdit);

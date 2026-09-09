@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Public Builder skills for docs-first discipline, autonomous execution, cross-agent review, local-first Rewind memory, efficient frontier-model orchestration, clear status recaps, and Agent Native workflows.",
+  "description": "Public Builder skills for docs-first discipline, autonomous execution, cross-agent review, local-first Rewind memory, efficient frontier-model orchestration, clear status recaps, and Agent-Native workflow app packaging.",
   "license": "MIT",
   "scripts": {
     "check:skills": "node scripts/check-skill-frontmatter.mjs",

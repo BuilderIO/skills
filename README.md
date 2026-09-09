@@ -12,6 +12,7 @@ See the [full CLI docs below](#install).
 
 ## Skills At A Glance
 
+- [`/an`](skills/an/SKILL.md) - Open and operate Agent-Native apps beside the conversation.
 - [`/webmcp`](skills/webmcp/README.md) - Open web apps in the built-in browser and use MCP tools first.
 - [`/visual-plan`](#visual-plan) - Turn text plans into rich visual plans.
 - [`/visual-recap`](#visual-recap) - Turn diffs into interactive visual recaps.
@@ -25,8 +26,23 @@ See the [full CLI docs below](#install).
 - [`/stay-within-limits`](#stay-within-limits) - Track usage limits before long-running work.
 - [`/quick-recap`](#quick-recap) - End work with a clear status signal.
 - [`/read-the-damn-docs`](#read-the-damn-docs) - Check authoritative docs before guessing.
+- [`/turn-into-app`](#turn-into-app) - Turn the current thread or a skill into a runnable Agent-Native app.
 
 ## Skill Details
+
+### [`/an`](skills/an/SKILL.md)
+
+Open a granted Agent-Native app in the host's inline MCP App or built-in browser
+surface, then keep the agent connected to the app's live UI and screen state.
+For example, run `/an slides` to open Slides, sign in in that browser
+surface, and then ask the agent to create or update the deck. Focused requests
+such as `make this bigger` use the Slides selection state and a bounded
+readback-verified edit.
+
+The plugin registers Dispatch MCP automatically for Claude and Codex at
+`https://dispatch.agent-native.com/mcp`. In ChatGPT, add that same URL as
+an OAuth custom connector. The host may need a reload or connector rescan after
+installation.
 
 ### [`/webmcp`](skills/webmcp/README.md)
 
@@ -193,6 +209,17 @@ SDK imports, provider limits, auth, security, billing, data, migrations, deploys
 and repo-specific contracts all require a docs pass before implementation. For
 external APIs and current product behavior, web search for official docs is
 usually the first move.
+
+### [`/turn-into-app`](skills/turn-into-app/README.md)
+
+At the end of a thread, turn the current workflow into a fresh Agent-Native app
+with clear buttons, visible agent steps, a running local preview, and a concise
+deployment handoff. At the beginning of a thread, pass a skill name or workflow
+path, such as `/turn-into-app /some-skill`, to use that source immediately.
+Codex threads and local transcript exports work today; ChatGPT shared links and
+Claude web/project imports are marked coming soon. The result should be the
+concrete workflow app, not a generic app-builder intake form. Local previews can
+use ignored `.env` setting `AUTH_DISABLED=1` so they open without an account.
 
 ## Install
 

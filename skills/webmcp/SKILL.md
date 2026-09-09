@@ -133,8 +133,9 @@ into a developer console.
   answers `does not support command "webmcp_list_tools"` for the current
   model, and that error means the bridge is unavailable for the rest of the
   session, not that the page lacks tools. Then use the page-world evaluator:
-  `const cdp = await tab.capabilities.get("cdp")`, `await cdp.documentation()`
-  once per session (the first CDP call fails without it), then
+  `globalThis.__cdp ??= await tab.capabilities.get("cdp")`, then
+  `await globalThis.__cdp.documentation()` once per session (the first CDP call
+  fails without it), then
   `cdp.send("Runtime.evaluate", { expression, awaitPromise: true,
   returnByValue: true })` and emit `response.result.value` with
   `nodeRepl.write(...)`. The CDP command dies at about 3 s ("Timed out running
@@ -147,6 +148,19 @@ into a developer console.
   when the request is an app operation; `view-screen` is the screen read.
   Playwright's isolated world cannot see the helper or `document.modelContext`;
   use CDP.
+- Codex only: the `cua_repl` kernel is documented as persistent across calls
+  but is recycled in practice, and `let`/`const` handles do not survive it.
+  Measured 2026-09-08 across four threads (`01a0837f-62ce`, `01a0837f-460a`,
+  `01a08380-95a9`, `01a0837a-fcb6`): every page call succeeded and the page
+  stayed `ready`, then a reset produced `cdp is not defined`, `tab is not
+  defined`, `Browser is not available: 2`, and `cua.getState()` spent 5.4-6.6 s
+  to return "Sky Computer Use native pipe startup failed" (`js kernel reset`
+  fired 2-10 times per thread). It follows an idle gap, not a page action.
+  Keep handles on `globalThis` and re-resolve them at the top of every
+  evaluation instead of trusting the kernel; on any of those three errors
+  reopen the tab with `cua.createBrowserTab` and re-run `documentation()`.
+  This is a host failure: do not diagnose it as an app or WebMCP fault, and do
+  not reach for `cua.getState()` to recover -- that is the call that fails.
 - Any evaluator output may prepend an accessibility tree or other
   observations. Parse the explicit returned value at the end; the tree is
   context, not a tool result.
