@@ -1,41 +1,179 @@
 ---
 name: turn-into-app
 description: >-
-  Turn the current thread, a named skill, or a proven workflow into a new
-  runnable Agent-Native app with simple buttons, visible agent steps, local
-  preview, and deployment handoff. Use at the end of a thread to appify it, or
-  at the beginning with an explicit skill or workflow source.
+  Turn visible project context, a proven thread, skill, or workflow into a
+  runnable Agent-Native app with simple buttons, visible agent steps, preview,
+  and deployment handoff. Use when a user invokes `/turn-into-app` or asks to
+  make a workflow into an app, including from
+  Claude or ChatGPT on the web, including when the source is a spreadsheet
+  link or upload.
+metadata:
+  visibility: exported
 ---
 
 # Turn Into App
 
+## Host execution boundary
+
+Classify the runtime before choosing a build path. The presence of a Dispatch
+or Builder connector does not make a coding host an online host:
+
+- **Local coding host** - Codex Desktop/Code, Claude Code, Cursor, or any
+  runtime with a terminal, filesystem, and target checkout. Build in that
+  checkout: scaffold, edit, run, and verify the app locally. Do not call
+  `start-workspace-app-creation`, `create_workspace_app`, or any Builder
+  handoff for this path. The local implementation steps below are required.
+- **Non-coding browser host** - Claude Web, ChatGPT Web, or a
+  Claude/ChatGPT Project in the browser when no target checkout or filesystem
+  is available. Act as the source analyst and handoff orchestrator. Do not run
+  `npm`, `pnpm`, `npx`, `agent-native create`, or `add-app`; do not edit files,
+  create artifacts, or start a local dev server. After writing the bounded
+  source brief, call the connected Dispatch action
+  `start-workspace-app-creation`. Pass the brief and repeatable workflow in
+  `prompt`, plus the inferred `appId`, `description`, `template`, and selected
+  `resourceIds` when available — reference resources by ID rather than pasting
+  whole knowledge files into the prompt. Then report what Dispatch actually
+  returned — the branch, the path, and the status it gave. This host cannot run
+  or inspect the app, and the returned path can 404 until the branch merges and
+  deploys, so the handoff ends at a pending or unverified status unless a status
+  or verification action is available to call. This is the Builder handoff for
+  browser hosts only.
+- If the host is ambiguous, inspect the environment. A real cwd, terminal, and
+  target workspace mean local coding host. Do not infer browser mode from the
+  availability of a Builder connector.
+- For the browser-only path, do not substitute the generic
+  `create_workspace_app` MCP tool. That tool is a local workspace scaffolder,
+  not the Builder handoff. Connect the Agent-Native Dispatch MCP connector
+  only; Dispatch uses the authenticated Builder Projects API to reuse or
+  provision the workspace project before starting the Builder Cloud Agent.
+- If the browser-only handoff action is unavailable or Dispatch is not
+  authenticated, stop with the connector setup needed. Do not fall back to a
+  host sandbox build or claim that the app exists.
+- Never invent a Builder branch URL. If Dispatch returns only an acknowledgement
+  or a path without a URL, report the handoff as unverified rather than calling
+  it a ready or verified Builder branch.
+
 ## Default behavior
 
-This is an end-to-end build skill, not a request for an app proposal.
+For a local coding host this is an end-to-end local build skill, not a request
+for an app proposal. For a non-coding browser host, the end-to-end result is a
+verified Builder handoff and the resulting workspace app, not code written in
+the browser host.
 
-- With no argument, use the current thread as the source. This is the normal
-  invocation at the end of a successful workflow.
+- With no argument, choose the source in this order: visible project context,
+  then the current thread. A fresh Claude or ChatGPT Project is a valid source
+  on its first turn. Treat its visible project instructions, knowledge files,
+  and supplied past runs as the source; a completed thread is not required.
+  Treat the current turn as a request or configuration unless it contains a
+  concrete repeatable workflow.
 - With a named skill or local workflow, read that source and package it
   immediately, even at the beginning of a thread. For example,
   `/turn-into-app /some-skill` means “turn `/some-skill` into an app.”
 - With an attachment or path, read the supplied artifact as the source.
 - Do not ask the user to restate context that is already in the thread.
+- When invoked from an Agent-Native app, use its visible project context first,
+  then the current thread. If the current runtime has a target checkout, use
+  the local implementation path; use a workspace/coding-agent handoff only
+  when the runtime cannot edit files. Do not claim the app exists without an
+  actual path and verification result.
+
+## Non-interactive by default
+
+Once the source brief identifies a repeatable workflow, the run proceeds without
+asking. This applies to both hosts: a local build and a browser handoff are
+equally non-interactive.
+
+Do not ask the user for visual, product, copy, layout, template, integration, or
+implementation choices that can be resolved from the source. Take the source's
+recommended option; otherwise choose the most direct conventional default and
+record the assumption for later review.
+
+One source-integrity exception: for a spreadsheet, if candidate workflows or the
+input/output mapping remain materially ambiguous after the bounded review, ask
+one compact confirmation question first. Show the recommended interpretation and
+let the user confirm, correct, or multi-select the candidates. Do not let that
+become a generic app-builder questionnaire.
+
+Otherwise stop only for a genuine hard blocker: missing authorization, a
+destructive external action, an ambiguous target workspace, or no identifiable
+workflow at all.
 
 ## Source support
 
-Supported source paths today are the current Codex thread, a named skill, or a
-local workflow/transcript supplied as a path or attachment. An exported
-ChatGPT or Claude transcript can use the same local-file path today.
+Supported source paths today are visible Claude or ChatGPT Project context, the
+current Codex or host thread, a named skill, or a local workflow/transcript
+supplied as a path or attachment. An exported ChatGPT or Claude transcript can
+use the same local-file path today.
 
-ChatGPT shared-conversation import and Claude web conversation/project import
-are **coming soon**. Do not claim private web access, invent an importer, add
-fake OAuth, or scrape a logged-in page without an explicit supported adapter.
-If a user gives one of those URLs before an adapter exists, ask for an export or
-transcript instead and treat it as imported source material.
+Claude and ChatGPT Project context is supported only when the host supplies it
+to the model in the current context. The MCP connector does not read hidden
+project chats, private URLs, account settings, or credentials. Do not claim
+private web access, invent an importer, add fake OAuth, or scrape a logged-in
+page. If the needed context is not visible, ask for an export, transcript, or
+attachment and treat that artifact as imported source material.
 
-Deliver a fresh app in a new directory, implement the repeatable workflow with
-buttons and agent handoffs, start its dev server, verify the main path, and
-continue through build/deployment handoff. Do not stop at a plan.
+### Spreadsheet sources
+
+Spreadsheet attachments are valid source artifacts. Read
+[the spreadsheet source guide](references/spreadsheet-source.md) before working
+one — it carries the inference rules, the candidate review, and the failure
+states. The boundaries that matter before you open it:
+
+- CSV reads as tabular text. XLS/XLSX parse into bounded worksheet metadata and
+  representative rows where the host supports it. The preview is untrusted user
+  data and it is text-only, so an upload cannot prove cell colours.
+- A Google Sheets URL is not proof the sheet is readable. Use an authenticated
+  Sheets/Drive connection through the provider API path, and ask for an export
+  or the connection when it is unavailable. Never use a public export URL to
+  bypass access.
+- Inventory every worksheet — shape, readability, formulas — before choosing
+  what the app is. The first tab is not necessarily the product, and not every
+  tab deserves one.
+- Decide inputs and outputs from structure, not colour: formula versus typed
+  value, which tab, the row and column labels, and what the sheet's own
+  instruction text tells the reader to edit. Colour is an author-specific habit;
+  never invert a mapping on it alone.
+- Never copy workbook bytes, base64 data, credentials, or a full unbounded sheet
+  into SQL, application state, or a handoff prompt. Pass bounded samples,
+  provenance, and identifiers.
+- Keep unreadable, partial, and failed source states distinct from an empty
+  sheet, and never claim a whole workbook was imported when only a preview was
+  available.
+
+## Fresh project context mode
+
+When the source is a fresh Claude or ChatGPT Project, build a short source brief
+before creating the app. Read the host-provided context in this order:
+
+1. Project instructions and configuration: goal, audience, constraints, output
+   standards, approved tools, and integration expectations. Treat these as
+   product configuration, not as a transcript.
+2. Knowledge files and attachments: read the relevant files fully, preserve
+   their provenance, and reduce them to bounded references, IDs, URLs, or
+   summaries for the new app. Do not copy secrets or large raw payloads into
+   prompts or SQL.
+3. Past runs or examples that are actually visible in the context: select at
+   most 1-3 successful, representative runs. Extract repeatable decisions and
+   review criteria. Treat one-off answers and private data as examples, not as
+   product behavior. If no runs are supplied, proceed from the instructions
+   and knowledge files and say that examples were not available.
+4. The current turn: use it for the requested app boundary, target workspace,
+   naming, and any explicit corrections.
+
+Post this brief before scaffolding, on the timing step 1 sets. Use these
+headings: source and provenance, project goal, configuration and constraints,
+knowledge sources, repeatable workflow, inputs and outputs, judgment and review
+points, representative runs, integrations and permissions, and unknowns and
+assumptions. This is the compact contract for the app. It keeps the new app
+useful without pretending that hidden Project history was imported. See
+[the fresh Project reference](references/fresh-project.md) for the host setup
+and brief template.
+
+If the visible Project context has no concrete repeatable job and no primary
+goal can be inferred, ask for one focused clarification or a representative
+artifact. Otherwise use the project's primary goal and source conventions; do
+not ask a questionnaire and do not fall back to a generic “what app do you
+want to make?” builder.
 
 ## Source selection guard
 
@@ -63,54 +201,62 @@ Generated apps must follow the shared Agent-Native surface model:
 - Use the right `AgentSidebar` for contextual AI. Every button-triggered
   `sendToAgentChat` handoff should open or focus that sidebar and keep the user
   on the current domain page.
-- Use a sans-first SaaS hierarchy for the app shell. Choose a named visual
-  direction in `DESIGN.md` before styling: product mode, audience, palette
-  family, type treatment, composition, shape language, and anti-references.
-  One restrained editorial cue is welcome, but warm beige plus terracotta is
-  not the default and serif type belongs in content previews or a deliberate
-  brand moment rather than the whole tool.
-- Preserve existing brand tokens. For a new unbranded app, choose a
-  product-fitting palette family and compare sibling apps before reusing their
-  accent. Keep shared semantic tokens and Agent-Native behavior consistent
-  while varying the visual world, density, composition, and shape language.
-- Give the AgentSidebar a subtle surface or divider boundary so it is visually
-  distinct from the domain page without becoming a heavy panel wall.
 - Every AI-labeled button must actually call `sendToAgentChat` with bounded
-  context and `openSidebar: true`. Keep `submit: true` for direct execution and
-  `submit: false` only when the user should edit the staged prompt first. Label
-  deterministic local actions as local, preview, or analyze instead of AI.
+  context and `openSidebar: true`. Label deterministic local actions as local,
+  preview, or analyze instead of AI.
+- Never use sparkle, wand, magic, robot, or similar decorative AI icons. Use a
+  message or neutral action icon, or no icon when the button label is enough.
+- Make the left navigation describe domain destinations. Chat is a separate
+  destination, not the label for every app page.
+- For a spreadsheet-derived app with multiple confirmed candidates, make each
+  candidate a separate named left-navigation destination. Keep the shared
+  source provenance visible, but show that candidate's selected worksheets,
+  ranges, inputs, outputs, historical context, and confirmation state on its
+  destination.
+- Start with one primary action and one compact state. Put setup choices,
+  advanced inputs, diagnostics, and long explanations behind progressive
+  disclosure or later workflow steps.
+- Choose a named visual direction in `DESIGN.md` before styling and build to it.
+  Preserve existing brand tokens; a new unbranded app picks its own
+  product-fitting palette rather than inheriting a sibling app's accent.
 - Standalone apps that render `AgentSidebar` must keep one assistant-ui runtime
   context. Pin the versions compatible with the installed core/toolkit peer
   graph, and add Vite dedupe/aliases when linked or transitive packages resolve
   duplicate assistant-ui modules. Verify a fresh AI handoff has no
   `AssistantUiStaleIndexErrorBoundary` or stale-index console error.
-- Make the left navigation describe domain destinations. Chat is a separate
-  destination, not the label for every app page.
-- Start with one primary action and one compact state. Put setup choices,
-  advanced inputs, diagnostics, and long explanations behind progressive
-  disclosure or later workflow steps.
-- Never use sparkle, wand, magic, robot, or similar decorative AI icons. Use a
-  message or neutral action icon, or no icon when the button label is enough.
-- Before handoff, inspect the first viewport for text density, repeated cards,
-  unrelated forms, and generic helper copy. Remove what the user does not need
-  until the next decision.
-- Run a `distill`, `typeset`, `colorize`, `layout`, `polish`, and `audit` pass
-  as useful named reviews. Make one intervention at a time and commit the
-  chosen direction rather than averaging several options into generic SaaS.
-- For before/after or original/generated review, stack the source first and the
-  result second by default. Reserve side-by-side layouts for short content that
-  remains comfortable to scan at the target width.
+- Before handoff, inspect the first viewport and remove the text density,
+  repeated cards, unrelated forms, and generic helper copy the user does not
+  need until the next decision.
+
+In a local code-agent runtime, read `frontend-design` for the visual direction
+contract, aesthetic guidelines, and named review passes behind these rules.
 
 ## 1. Extract the workflow
 
-Read the full available source before coding. Reduce it to a short working
-brief:
+Read the full available source, then write the brief out before the first
+scaffold command. This is the user's one cheap chance to catch a misread —
+after this point a correction costs a rebuild. A few lines per item; it is a
+checkpoint, not a document.
+
+State it and keep going. Do not wait for approval; see *Non-interactive by
+default*. A brief that appears only in the handoff does not count — by then it
+cannot change anything.
+
+The brief covers:
 
 - the user and repeatable job;
 - inputs and outputs;
 - the 1-3 judgment-heavy agent moments;
 - the buttons, review points, and retry states a user needs;
 - data, permissions, integrations, and failure boundaries.
+
+For a spreadsheet source, also include the workbook/file or spreadsheet ID,
+worksheet and range candidates, source snapshot/live semantics, formatting
+signals and their confidence, selected candidate destinations, and the exact
+confirmation or clarification still needed. A spreadsheet's inputs and
+outputs have two layers: the mapped source cells/ranges, and the generated
+app's user-facing results/actions. Name both so the Builder does not confuse
+an output cell with an app write or a historical value with an editable input.
 
 Preserve useful judgment from the source, but do not turn a one-off answer,
 private data, or an unverified result into a product contract. If the source is
@@ -124,14 +270,29 @@ overwrite an existing app. If the user supplied a directory, use it; otherwise
 use `apps/<slug>` inside an existing Agent-Native workspace, or a new sibling
 directory when working outside one.
 
-For a new UI-bearing app, use the current Agent-Native scaffold and then read
-the generated `AGENTS.md`:
+Say once, before the first command, what this run will need to execute —
+dependency install, scaffold, typecheck, doctor, and a dev server. A host that
+asks per command will ask many times; one stated expectation up front is what
+keeps that from reading as something going wrong.
+
+For a new UI-bearing standalone app, use the current Agent-Native scaffold and
+then read the generated `AGENTS.md`:
 
 ```bash
 npx @agent-native/core@latest create <app-directory> --template chat
 cd <app-directory>
 pnpm install
 ```
+
+When working inside an existing Agent-Native workspace, create the app from
+the workspace root instead:
+
+```bash
+pnpm exec agent-native add-app <slug> --template=chat
+```
+
+Do not use `create` for an existing workspace; it scaffolds a new standalone
+workspace rather than adding an app to the current one.
 
 Use a first-party template only when it materially fits the workflow. Keep the
 new app independent from the source thread's working tree unless the user
@@ -141,6 +302,27 @@ Read the generated `DESIGN.md` before building the first screen and fill in the
 visual direction as part of the app brief. Do not copy the previous app's
 palette just because its tokens are nearby.
 
+### When the scaffold does not complete
+
+A scaffold or install step can fail, time out, or be denied when the host asks
+the user for permission. All three are the same situation: the app you were told
+to build does not exist yet. Retry once where a retry could plausibly help, then
+stop and report the blocker with the exact command, the failure, and what is
+already on disk.
+
+Never work around it. Do not hand-build the app in another stack, do not edit a
+pinned dependency version to force an install through, and do not carry on
+against a half-created directory. An app that is not the real Agent-Native
+scaffold is a different product, not a smaller version of this one, and a
+handoff that reports success for it is worse than no app at all.
+
+Do not decide for yourself that a workaround is the only path forward. That
+judgment is what produced every case above — each of those runs had a reason
+that looked sufficient at the time. Report the blocker and let the user choose.
+If they ask for a workaround, it becomes a finding rather than a detail: name it
+in the handoff as a pending item, with what you changed and why, so the next
+person sees the problem instead of inheriting it silently.
+
 ## 3. Turn the workflow into buttons and agent work
 
 Implement the smallest useful surface around the extracted brief. The app
@@ -149,13 +331,20 @@ should make the repeated path obvious without hiding the agent's judgment:
 - Give each important repeated moment a clear button, such as “Analyze,”
   “Suggest options,” “Draft,” “Review,” or “Publish.” Use the source's actual
   vocabulary when it is clear.
-- Put deterministic reads, writes, approvals, and publishing in `actions/`
-  with `defineAction`. The UI and agent must call the same action surface.
+- Put deterministic reads, writes, approvals, provider fetches, and publishing
+  in focused `actions/` with `defineAction`. The UI and agent must call the
+  same action surface.
+- If a workflow is framed as research, analysis, generation, recommendation,
+  or synthesis, start it in the AgentSidebar and let the agent orchestrate
+  those actions. Do not hide an AI-shaped multi-step workflow behind one
+  opaque action just because the implementation is deterministic.
 - Use application state for the current screen, selected item, and focused
   object so the agent can see where the user is.
-- Use `sendToAgentChat({ message, context, submit: true })` for intentional
-  button-triggered agent work. Use `submit: false` when the user should review
-  or edit the proposed prompt first.
+- Use `sendToAgentChat({ message, context, submit: true, openSidebar: true })`
+  for intentional button-triggered agent work. Use `submit: false` when the
+  user should review or edit the proposed prompt in the AgentSidebar first.
+  Keep follow-up and revision prompts in that same thread; do not add a second
+  freeform textbox beside the result.
 - Pass IDs, URLs, and bounded summaries in context. Do not paste large provider
   dumps into prompts, call an LLM directly from the browser, or invent fake
   progress.
@@ -252,6 +441,9 @@ Exercise the actual happy path, not only the source files:
 5. Check the dev output for browser/runtime errors, and capture input, result,
    and agent-sidebar states so the complete flow is reviewable.
 
+Run the checks the generated app's own `AGENTS.md` names — typecheck and
+`agent-native doctor` — and fix what they report before building.
+
 Then run the supported build. For a standalone app, use the generated app's
 documented build and hosting path. For an app inside a workspace, use the
 workspace deploy command, for example:
@@ -273,6 +465,16 @@ deployed, and live-verified are different states.
 ## Handoff
 
 End with the new app directory, local URL, visual direction, what the buttons do,
-account-free local-preview status, verification performed, deployment URL if it is real,
-and one precise pending step when something could not be completed. Keep the
+account-free local-preview status, verification performed, deployment URL if it is
+real, and one precise pending step when something could not be completed. Keep the
 handoff short enough to use in a demo or recording.
+
+Do not restate the brief here — step 1 already posted it. Report what changed
+from it instead: assumptions you added, anything the source turned out not to
+support, and choices made where the source was silent.
+
+The handoff describes what exists, not what was intended. If the scaffold never
+completed, if a step was worked around, or if the app is not the real
+Agent-Native scaffold, that is the headline — not a caveat below one. A handoff
+cannot report the build as complete and list the framework the app is built on as
+a future improvement; if both would be true, the build is not complete.
