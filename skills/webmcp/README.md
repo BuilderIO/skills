@@ -63,3 +63,21 @@ explicit request to use UI automation for that operation changes this.
 ```sh
 npx @agent-native/skills@latest add --skill webmcp
 ```
+
+## Install in Claude Cowork
+
+For a shareable Cowork install, add this repository as a Claude plugin
+marketplace:
+
+1. Open `Customize` > `Plugins` > `Add marketplace` in Cowork.
+2. Enter `BuilderIO/skills` (or `https://github.com/BuilderIO/skills`).
+3. Install `Builder Skills` and enable `webmcp`.
+
+The plugin skill is namespaced, so invoke it as:
+
+```text
+/builder-skills:webmcp slides inspect the current screen without editing
+```
+
+The `npx` command above installs a plain local skill for supported agent
+clients. It does not add a skill to a Claude Cowork account.

@@ -246,7 +246,27 @@ That installer is useful for quick copying, but it does not add the managed
 `AGENTS.md` / `CLAUDE.md` instruction blocks or the PR Visual Recap GitHub
 Action that pair well with these skills.
 
-### Install as a Claude Code plugin
+### Install in Claude Cowork
+
+This repo is also a Claude plugin marketplace for Cowork. To install the
+shareable, updatable plugin in Cowork:
+
+1. Open `Customize` > `Plugins` > `Add marketplace`.
+2. Enter `BuilderIO/skills` (or `https://github.com/BuilderIO/skills`).
+3. Install `Builder Skills` and enable the `webmcp` skill.
+
+Invoke the installed skill with its plugin namespace:
+
+```text
+/builder-skills:webmcp slides inspect the current screen without editing
+```
+
+For Team and Enterprise workspaces, an organization admin can provision the
+marketplace or plugin for everyone. Cowork does not currently expose a
+supported CLI command for installing an account-level plugin; the marketplace
+is shared through Git, while each Cowork user installs it from `Customize`.
+
+### Install in Claude Code
 
 This repo is also a [Claude Code plugin
 marketplace](https://code.claude.com/docs/en/plugin-marketplaces). To install
