@@ -125,6 +125,19 @@ into a developer console.
 
 ### Evaluators per host
 
+- Prefer the app's own remote MCP server for anything server-backed; the
+  browser is for page-local state. If the host already has the app configured
+  (Codex `~/.codex/config.toml`, Claude Code MCP settings) and its
+  `mcp__<app>__*` tools are present, call those directly — that transport never
+  touches `cua_repl` or CDP and a host kernel reset cannot kill it. Two things
+  to know before treating it as a drop-in: a hosted app serves a trimmed
+  connector catalog by default (`list_apps`, `open_app`, `ask_app`,
+  `ask_app_status`, `create_embed_session`, `tool-search`) unless it opts in via
+  `mcp.connectorCatalog` or the caller sends `X-Agent-Native-MCP-Full-Catalog: 1`,
+  and page-local tools — current selection, live DOM-backed actions — exist only
+  in the page. An entry with a bare `url` and no `Authorization` header
+  registers **zero** tools; that is a missing `agent-native connect <url>`, not
+  an app without MCP.
 - Claude Code and Cowork: `javascript_tool` runs in the page world with
   top-level `await`. Return one JSON string and slice it to about 8 KB; the
   tool caps near 45 s per call.
