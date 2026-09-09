@@ -124,9 +124,19 @@ diagnose them as one.
   defined`, `tab is not defined`, `Browser is not available: 2`, and
   `cua.getState()` spent 5.4-6.6 s returning "Sky Computer Use native pipe
   startup failed". Keep handles on `globalThis` and re-resolve them at the top
-  of every evaluation; on any of those errors reopen the tab and re-run
-  `documentation()`. Never reach for `cua.getState()` to recover — that is the
-  call that fails.
+  of every evaluation; on `cdp is not defined` or `tab is not defined`, reopen
+  the tab and re-run `documentation()`. Never reach for `cua.getState()` to
+  recover — that is the call that fails.
+- **Codex only, and distinct from the reset above: the browser itself can die.**
+  `Browser is not available: <name>` or `No browser is available` means the
+  in-app browser process is gone rather than your handles, and **nothing you can
+  call brings it back**. Measured 2026-09-09 (`01a0869c`): `cua.getTab`,
+  `cua.createBrowserTab` and `cua.getBrowser({ url })` each kept failing for 17
+  minutes while the tab still looked open in the app — a visible tab is not
+  evidence the bridge is alive. Stop after the second failure. Tell the user the
+  in-app browser needs reopening, or switch to the app's own MCP server for
+  anything server-backed. Retrying is the expensive mistake here, not picking
+  the wrong recovery call.
 - **Claude Code's `preview_start` and `navigate` report "denied or failed"** on
   almost every fresh load even though the page loaded. Check `tabs_context` or
   `get_page_text` instead of retrying the navigation.
