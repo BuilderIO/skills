@@ -60,7 +60,7 @@ jobs:
       - name: Detect exported skill changes
         id: diff
         run: |
-          if git diff --quiet -- skills/visual-plan skills/visual-recap skills/visual-edit skills/rewind; then
+          if git diff --quiet -- skills/an skills/visual-plan skills/visual-recap skills/visual-edit skills/rewind skills/turn-into-app; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -91,7 +91,7 @@ jobs:
           git config user.name "builder-bot"
           git config user.email "builder-bot@users.noreply.github.com"
           git checkout -B "$UPDATE_BRANCH"
-          git add skills/visual-plan skills/visual-recap skills/visual-edit skills/rewind
+          git add skills/an skills/visual-plan skills/visual-recap skills/visual-edit skills/rewind skills/turn-into-app
           git commit -m "chore: update Agent Native exported skills"
           git push --force-with-lease origin "$UPDATE_BRANCH"
 
