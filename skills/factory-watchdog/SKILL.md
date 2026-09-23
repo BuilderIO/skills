@@ -1,5 +1,6 @@
 ---
 name: factory-watchdog
+installer-group: factory
 description: >-
   Experimental workflow for monitoring explicitly authorized delivery tasks
   and reporting stalled work. Use for scheduled ship follow-through.
@@ -7,29 +8,25 @@ description: >-
 
 # Factory Watchdog
 
-Read .agent-factory/config.yaml. Monitor only the configured projects and
-authorized delivery handoffs. A task title, branch name, PR, successful check,
-or agent summary is not authorization.
+Read `.agent-factory/config.yaml` and the [Factory configuration reference](https://github.com/BuilderIO/skills/blob/main/docs/factory/configuration.md). Monitor only configured projects and authorized delivery handoffs. A task title, branch, PR, green check, or agent summary is not authorization.
 
-## Scan
+## Find actionable stopped work
 
-1. Find candidate tasks through the configured host. Read enough of each
-   task's user-authored history to verify the requested scope and any later
-   cancellation or change.
-2. Skip active work, explicit waits, completed or cancelled work, ambiguous
-   ownership, and tasks with no configured delivery authorization.
-3. For stopped work, identify its latest task-owned PR, branch, or unpublished
-   change. Query the live host state immediately before acting. Verify the PR
-   is open and the branch/head match, or verify a named existing worktree has
-   task-owned unpublished work.
-4. Send a reminder only when the configured notification policy allows it and
-   the live evidence shows a specific next step is due. Check recent task
-   history for an unchanged reminder. Stay quiet on unchanged waits and
-   unavailable state.
-5. Keep the task owner responsible for its merge, post-merge verification,
-   and cleanup unless the config explicitly assigns those actions elsewhere.
+- Find candidates through the configured host and read enough user-authored
+  history to confirm the request and any later cancellation or scope change.
+- Skip active work, explicit waits, completed or cancelled tasks, ambiguous
+  ownership, and tasks without configured delivery authorization.
+- For stopped work, identify its task-owned PR, branch, or worktree. Check live
+  host state immediately before acting and verify the PR is still open and its
+  head matches, or that the named worktree still contains task-owned work.
 
-Use the configured destination, wording, cadence, and rate limit. If the host
-cannot prove the target or state, do not message; report DONT_NOTIFY when
-there is no meaningful change.
+## Notify only on a verified next step
 
+Send a reminder only when the notification policy permits it and current live
+evidence shows a concrete next step is due. Check task history for an unchanged
+reminder. Use the configured destination, cadence, wording, and rate limit.
+
+Keep the task owner responsible for merge, post-merge verification, and cleanup
+unless the config explicitly assigns those actions elsewhere. If target or
+state cannot be proven, do not message. Report `DONT_NOTIFY` when nothing
+meaningful changed.

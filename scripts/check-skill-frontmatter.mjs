@@ -10,6 +10,7 @@ const skillsRoot = path.join(repoRoot, "skills");
 const allowedProperties = new Set([
   "allowed-tools",
   "description",
+  "installer-group",
   "license",
   "metadata",
   "name",
@@ -154,6 +155,18 @@ function validateSkillFrontmatter(skillName, fields) {
   }
   if (description.length > 1024) {
     throw new Error("description is too long; maximum is 1024 characters");
+  }
+
+  const installerGroup = fields.get("installer-group");
+  if (
+    installerGroup !== undefined &&
+    (typeof installerGroup !== "string" ||
+      !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(installerGroup) ||
+      installerGroup.length > maxSkillNameLength)
+  ) {
+    throw new Error(
+      "installer-group must be a lowercase hyphen-case scalar slug of at most 64 characters",
+    );
   }
 }
 

@@ -1,5 +1,6 @@
 ---
 name: factory-review-prs
+installer-group: factory
 description: >-
   Experimental workflow for reviewing configured repositories' pull requests.
   Use for manual or scheduled PR triage, approval, or merge decisions.
@@ -7,36 +8,40 @@ description: >-
 
 # Factory Review PRs
 
-Read .agent-factory/config.yaml. Use only its repositories, PR filters,
-reviewer policy, and action thresholds. Review, approval, replies, and merge are
-separate permissions.
+This skill reviews a filtered queue. For one long-lived, explicitly authorized
+PR, use `factory-babysit-pr`. Read the filters and independent action policies
+from `.agent-factory/config.yaml`; see the [configuration reference](https://github.com/BuilderIO/skills/blob/main/docs/factory/configuration.md).
 
-## Review
+## Review the queue
 
-1. Query current PR state from the configured host. Exclude drafts and PRs
-   outside configured filters; skip a PR that already has a current review
-   unless the policy requests a re-review.
+For each candidate PR:
+
+1. Read live state from the configured host. Exclude drafts and PRs outside the
+   configured filters. Skip a PR with a current review unless re-review is
+   requested by policy.
 2. Inspect the diff, linked issues, required checks, review threads, author
-   eligibility, and exact head revision. Treat bot findings as leads; resolve
-   them against source and preserve human review direction unless evidence
-   disproves it.
-3. Report findings with file and line, impact, and a concrete fix. If there are
-   no actionable findings, record that result without inventing a comment.
+   eligibility, and exact head revision. Treat bot findings as leads and
+   preserve human review direction unless source evidence disproves it.
+3. Report actionable findings with file, line, impact, and a concrete fix. If
+   none exist, record that outcome without inventing a comment.
 
-## Approval and merge
+Unavailable or partial state is unknown, never a clean result.
 
-- Approve only when approval is enabled and every configured author, risk,
-  ownership, check, and review condition is verified on the current head.
-  Unknown author eligibility or incomplete checks means no approval.
-- Merge only when merge is enabled and its independent criteria hold. Re-read
-  the exact head, check results, mergeability, and review state immediately
-  before the merge. Restart any configured soak when the head changes.
-- Send replies, reviews, labels, assignments, or notifications only when the
-  matching action is enabled and its criteria hold. Use configured wording or
-  tone guidance; if replies are disabled, do not message contributors.
-- Do not treat host-level mergeability, one green check, or a bot approval as
-  proof that every configured gate passed.
+## Apply separate action gates
 
-Recap each reviewed PR with its decision and evidence, and list skipped,
-unavailable, or held PRs with the reason.
+| Action | Proceed only when |
+| --- | --- |
+| Review | The PR matches configured filters and has not already had the required current review. |
+| Reply or other PR write | That action is enabled and its conditions hold. Use configured wording; do not tag, assign, or message otherwise. |
+| Approve | Approval is enabled and author, risk, ownership, current-head, check, and review conditions are verified. |
+| Merge | Merge is separately enabled; every live merge condition and any soak hold on the unchanged head. |
 
+Host-level mergeability, one green check, or a bot approval does not prove all
+gates passed. Re-read the exact head and live state immediately before an
+approval or merge. Restart a configured soak if the head or a gate changes.
+
+## Report
+
+For each PR, state the decision and evidence. List skipped, unavailable, and
+held PRs with the reason. Keep review findings separate from approvals, replies,
+and merge decisions.
