@@ -1,5 +1,6 @@
 ---
 name: factory-ship
+installer-group: factory
 description: >-
   Experimental workflow for publishing and completing configured software
   delivery work. Use when the user or an enabled factory policy asks to ship.
@@ -7,31 +8,32 @@ description: >-
 
 # Factory Ship
 
-Read .agent-factory/config.yaml and the repository's own instructions before
-publishing. A user request or enabled policy may authorize a workflow step;
-never infer merge or deployment permission from permission to edit code.
+Read `.agent-factory/config.yaml` and the repository's instructions before
+publishing. See the [Factory configuration reference](https://github.com/BuilderIO/skills/blob/main/docs/factory/configuration.md). Editing code does not by itself authorize a PR update, approval, merge, or deployment.
 
-## Lifecycle
+## Delivery steps
 
-1. Confirm the target repository, owning worktree, branch, and complete
-   task-related change set. Preserve unrelated or incomplete work. Use a
-   fresh, automation-owned worktree when the configured scheduler provides one;
-   never take over a peer's checkout.
-2. Run the configured formatter, tests, and other release checks. Report skipped
-   or unavailable checks as such.
-3. Publish or open/update a PR only when that action is authorized. Use the
-   configured title, body, draft status, labels, and communication rules. Do not
-   tag or message people unless enabled.
-4. Resolve review feedback against the code and current human direction. Make
-   one coherent update and re-run affected checks.
-5. Merge only when the independent merge policy is enabled and all criteria
-   hold on the unchanged live PR head. Use the host's head-match guard when
-   available. If the head changes, repeat the required checks and soak.
-6. Verify the merge in the target's current base branch. Check deployment or
-   production behavior only when configured; a merge is not live proof.
-7. Close linked issues, rotate worktrees, and notify people only at their
-   configured proof points.
+1. **Confirm ownership.** Identify the target repository, task-owned worktree,
+   branch, and complete task-related change set. Preserve unrelated changes.
+   Use a clean automation-owned worktree when the scheduler provides one; never
+   take over a peer's checkout.
+2. **Verify changes.** Run the configured formatter, tests, and release checks.
+   Report checks that were skipped or unavailable.
+3. **Publish when enabled.** Open or update a PR only when authorized. Apply
+   configured title, body, draft status, labels, and communication rules. Do
+   not tag or message people unless enabled.
+4. **Resolve feedback.** Compare comments with the code and current human
+   direction. Make one coherent update, then rerun affected checks.
+5. **Apply merge gates.** Merge only under its own enabled policy and while all
+   criteria hold on the unchanged live head. Use a head-match guard when the
+   host supports it. A head change invalidates tied evidence and resets the
+   soak.
+6. **Verify and close out.** Confirm the merge in the current base branch.
+   Verify deployment only when configured; a merge is not live proof. Close
+   issues, rotate worktrees, and notify only at their configured proof points.
 
-If a gate is missing, preserve the work and state the exact next action. Do not
-convert an external or inconclusive result into success.
+## Stop conditions
 
+Hold the work when ownership, authorization, a required check, or live host
+state is missing or unclear. State the exact next step; do not turn an
+inconclusive result into success.

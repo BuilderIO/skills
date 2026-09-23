@@ -1,185 +1,117 @@
 # Experimental software factory
 
-The Factory skills are an experimental, composable workflow for turning configured
-feedback and maintenance signals into reviewed software changes. They support
-different issue trackers, chat channels, error monitors, repositories, coding
-hosts, schedules, and autonomy thresholds.
+> **Experimental:** Factory skills install agent instructions. They do not add
+> integrations, credentials, scheduled jobs, or permission grants. Host support
+> and the configuration conventions can change.
 
-They install agent instructions. They do not connect accounts, provision
-credentials, create scheduled automations, or grant permissions by themselves.
-Use /factory to configure the project, then ask it to create automations through
-the connected host's supported scheduler.
+Factory is a set of composable skills for turning configured product and
+maintenance signals into reviewed software changes. Each action has its own
+autonomy policy: fixing an issue does not automatically authorize a reply,
+approval, merge, deployment, or issue closure.
 
-## Install the whole group
+## Workflow at a glance
 
-The skills CLI accepts repeated --skill flags, so one command installs the
-setup skill and every workflow module into Codex's shared .agents/skills path
-and Claude Code's .claude/skills path:
+Factory uses the read-capable integrations and scheduler already available in
+your agent host. The source names below are examples; there is no fixed Factory
+connector catalog.
 
-~~~sh
-npx @agent-native/skills@latest add \
-  --skill factory \
-  --skill factory-feedback \
-  --skill factory-review-prs \
-  --skill factory-ship \
-  --skill factory-watchdog \
-  --skill factory-recover \
-  --client codex,claude-code \
-  --scope project \
-  --yes
-~~~
+```mermaid
+flowchart LR
+  sources["Connected sources<br/>chat · issues · errors · custom"] --> intake["/factory-feedback"]
+  intake --> fix{"Fix policy allows it?"}
+  fix -->|hold| human["Human decision"]
+  fix -->|yes| worktree["Isolated worktree<br/>checks and verification"]
+  worktree --> pr["Open or update PR"]
+  pr --> queue["/factory-review-prs<br/>Review a PR queue"]
+  pr --> babysit["/factory-babysit-pr<br/>Watch one authorized PR"]
+  queue --> gates{"Separate approval and merge gates"}
+  babysit --> gates
+  gates -->|hold| human
+  gates -->|allowed| ship["/factory-ship"]
+  scheduler["Host scheduler"] -. starts enabled jobs .-> intake
+  scheduler -.-> queue
+  scheduler -.-> babysit
+  scheduler -.-> followup["/factory-watchdog · /factory-recover"]
+```
 
-You can also install one skill at a time. The CLI picker and skills list mark
-each module Experimental in its description.
+The diagram shows possible handoffs, not automatic permissions. Every recurring
+job must be created and verified in the host scheduler.
+
+## Install
+
+Run the interactive installer and select **Factory** to preselect the group.
+You can remove individual skills, then choose clients and install scope:
+
+```sh
+npx @agent-native/skills@latest add
+```
+
+Every Factory skill is marked experimental in the installer and skills list.
 
 ## Skills
 
-- /factory configures sources, schedules, worktrees, autonomy, notifications,
-  and host automations.
-- /factory-feedback enumerates and triages product feedback, issues, and errors.
-- /factory-review-prs reviews pull requests and applies independent approval,
-  reply, and merge policies.
-- /factory-ship publishes configured work and completes its delivery checks.
-- /factory-watchdog follows explicitly authorized ship work and stays quiet
-  unless a verified next step is due.
-- /factory-recover finds interrupted runs and resumes only when the original
-  authorization and worktree are still valid.
-
-The existing /agent-watchdog remains the general audit skill for another
-agent's session or diff. It is useful alongside Factory but does not replace
-these recurring intake, review, and delivery workflows.
-
-## Configure the factory
-
-Run /factory in the project where the workflows should operate. It reads
-.agent-factory/config.yaml if present, discovers connected providers and
-scheduler capabilities, and asks only for missing decisions. Keep the config
-in the project so the setup and recurring runs share the same policy.
-
-This is an agent-readable convention, not a validated scheduler schema. The
-skill must still create or update each host automation and read its persisted
-settings back. A schedule written in YAML is not proof that a job exists.
-
-~~~yaml
-version: 1
-timezone: America/Los_Angeles
-
-repositories:
-  - id: app
-    provider: github
-    remote: example/project
-    worktree:
-      mode: fresh-per-run
-      base: origin/main
-
-sources:
-  - id: product-feedback
-    provider: slack
-    scope: channel-id
-  - id: issues
-    provider: jira
-    scope: PROJECT
-  - id: errors
-    provider: sentry
-    scope: organization/project
-
-workflows:
-  feedback:
-    enabled: true
-    schedule: every 4 hours
-    sources: [product-feedback, issues, errors]
-    implement:
-      mode: criteria
-      allow: [verified defects, low-risk changes]
-    reply:
-      mode: after-fix
-      tone: concise and appreciative
-      guidance: Thank the reporter and link the fix.
-    close:
-      mode: after-merge
-
-  pull-requests:
-    enabled: true
-    schedule: "weekdays at 07:00, 12:00, and 15:00"
-    approve:
-      mode: criteria
-      require: [eligible author, current head, required checks green, no unresolved findings]
-    merge:
-      mode: criteria
-      require: [mergeable, review-clean, unchanged head for 10 minutes]
-
-  ship-watchdog:
-    enabled: true
-    schedule: every 5 minutes
-    notify:
-      mode: meaningful-change-only
-
-  recovery:
-    enabled: false
-~~~
-
-The example schedules, sources, criteria, and ten-minute soak are illustrations,
-not defaults. Configure each item for the host, repositories, and risk tolerance.
-
-### Autonomy is per action
-
-Choose each policy separately. Do not use one autonomy level for an entire
-factory:
-
-| Action | Example policy |
+| Skill | Use it for |
 | --- | --- |
-| Read a source | Enumerate every configured item; unavailable is not empty |
-| Implement a change | Only confirmed bugs under named risk and path criteria |
-| Reply to a reporter | Never, ask first, after a fix, or every in-scope item; set tone and guidance |
-| Close an issue | Never, after source merge, or after a configured verification point |
-| Review a PR | Inspect and report findings without changing PR state |
-| Approve a PR | Disabled by default; enable for named authors and verified gates |
-| Merge a PR | Disabled by default; enable only with explicit live check, review, and soak criteria |
-| Deploy to production | Independent of merge; disabled unless separately configured |
-| Resume a run | Only when its original authorization remains valid |
-| Send a watchdog reminder | Only for verified stopped work with a concrete next step |
+| `/factory` | Choose sources, policies, schedules, worktrees, and host automations. |
+| `/factory-feedback` | Read and disposition configured feedback, issues, and error reports. |
+| `/factory-review-prs` | Review a filtered queue of PRs; apply separate reply, approval, and merge rules. |
+| `/factory-babysit-pr` | Follow one explicitly authorized PR, fix in-scope findings, and apply separate publish, reply, approval, merge, and soak rules. |
+| `/factory-ship` | Publish and complete delivery work under the project's policy. |
+| `/factory-watchdog` | Find stalled, explicitly authorized delivery work and notify only when a concrete next step is due. |
+| `/factory-recover` | Resume an interrupted run only when its original authorization and worktree are still valid. |
 
-For every action, choose a policy such as never, manual approval, or criteria.
-When criteria are enabled, specify the allow conditions and stop conditions.
-Unknown, incomplete, or unreadable evidence fails closed. A user's approval to
-fix an issue does not automatically authorize a public reply, issue closure,
-PR approval, merge, or production deployment.
+`/factory-review-prs` is a queue sweep. `/factory-babysit-pr` follows one PR.
+`/factory-watchdog` looks for stopped delivery work. `/factory-recover` handles
+interrupted runs. Use `/agent-watchdog` for a general audit of another agent's
+session or diff; it does not replace these Factory workflows.
 
-### Sources and credentials
+## Configure
 
-Each source names a provider or custom adapter and its scope, such as a chat
-channel, repository, tracker project, or error-monitor project. Use only
-integrations the host already grants. A custom provider can be described by its
-connected MCP/API tool and the filters or cursor needed to enumerate it.
+Run `/factory` in the project where the workflows should operate. It reads the
+project's `.agent-factory/config.yaml`, shows the read-capable integrations
+available in the host, and asks about missing scopes and policies. You can use
+Slack, GitHub Issues, Jira, Sentry, or another source if the host exposes a
+read-capable connector or MCP/API tool for it. Add your own source by describing
+that tool, its query arguments, filters, and pagination in the config; the
+Factory skills cannot connect a provider that the host does not expose.
 
-Keep credentials in the host's connection or secret store. The project config
-may contain a connection name or opaque reference, but never token values,
-passwords, private URLs, or copied customer data. If a provider is unavailable,
-report it and continue only with sources that were successfully read.
+The [configuration reference](configuration.md) contains a starter config and
+describes every documented property, policy, custom-source field, and host
+limitation.
 
-### Schedules and worktrees
+The setup flow is:
 
-Set the time zone, cadence, target project, and runtime separately for each
-workflow. Hosts differ in scheduling syntax and in whether a recurring task is
-a cron job or a thread heartbeat. Preserve those semantics; do not convert a
-job type simply to gain a model or effort option. Verify the saved schedule,
-target, runtime, and notification behavior after setup.
+1. **Choose sources and scope.** Name the connected tool and exact channel,
+   repository, project, or other boundary.
+2. **Set action policies separately.** Choose when the agent may fix, reply,
+   close, review, approve, publish, merge, deploy, recover, or notify.
+3. **Choose schedules and isolation.** Use host-supported schedules and a clean,
+   automation-owned worktree for code-changing jobs.
+4. **Create and verify host automations.** A YAML schedule is only a request;
+   `/factory` must read the saved job settings back and report anything the host
+   could not configure.
 
-Code-changing jobs should use a clean, automation-owned worktree from the
-configured base. Do not borrow a saved checkout or another active task's
-worktree. If the host cannot provision that isolation, keep the code-changing
-workflow manual instead of silently using a shared checkout.
+The config is an agent-readable convention, not a validated schema. Unknown
+fields do not install connectors or create jobs. Provider-specific fields must
+be explained clearly and confirmed with the host.
 
-### Run and tune
+## Start with low autonomy
 
-Start with read-only source enumeration or dry runs. Confirm each source's
-cursor, scope, and counts, then exercise one low-risk code change and its
-configured verification. Review sample replies, approvals, merges, and
-notifications before enabling those actions. Use the run history to tune the
-criteria; do not weaken a gate merely to make a run appear successful.
+- Begin with manual runs or read-only source enumeration.
+- Confirm source scope, pagination, counts, and unavailable integrations.
+- Try one low-risk fix and verify it with the project's checks.
+- Review sample replies and notifications before enabling them.
+- Enable PR approval, merge, or deployment only with explicit criteria and
+  live-state checks. Keep production deployment independent from merge.
 
-The factory skills are experimental. Their config is not schema-validated, and
-host automation capabilities vary. The setup skill must say which sources,
-actions, and schedule fields were actually configured and which still need
-manual setup.
+Missing, partial, stale, or unreadable evidence is a hold for a person. The
+skills never infer permission for one action from another.
 
+## Limits
+
+- Integrations, credentials, scheduler features, and worktree support come from
+  the agent host and connected tools.
+- Config values such as schedules, filters, and policy text may need host- or
+  project-specific syntax.
+- A configured job can still fail to run. Verify its saved schedule and review
+  run history before relying on it.

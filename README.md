@@ -14,29 +14,24 @@ See the [full CLI docs below](#install).
 
 Build configurable feedback-to-delivery workflows from connected sources such
 as chat, issue trackers, and error monitors. The experimental modules cover
-feedback intake, PR review, shipping, ship watchdogs, and recovery of
-interrupted runs. Configure each action independently, including when to fix,
-reply, approve, merge, close, deploy, resume, or notify.
+feedback intake, PR queue review and single-PR babysitting, shipping, ship
+watchdogs, and recovery of interrupted runs. Configure each action
+independently, including when to fix, reply, approve, merge, close, deploy,
+resume, or notify.
 
-Install the complete group in one command:
+Run the interactive installer and select **Factory** to preselect its skills.
+You can deselect individual skills, then choose the supported clients and
+user- or project-level install scope:
 
-~~~sh
-npx @agent-native/skills@latest add \
-  --skill factory \
-  --skill factory-feedback \
-  --skill factory-review-prs \
-  --skill factory-ship \
-  --skill factory-watchdog \
-  --skill factory-recover \
-  --client codex,claude-code \
-  --scope project \
-  --yes
-~~~
+```sh
+npx @agent-native/skills@latest add
+```
 
 Use /factory to write .agent-factory/config.yaml and configure connected
 sources, per-action autonomy, schedules, and host automations. The [Factory
-guide](docs/factory/README.md) explains configuration, privacy, and the
-scheduler/worktree requirements.
+guide](docs/factory/README.md) gives the workflow overview; the [configuration
+reference](docs/factory/configuration.md) documents YAML fields, custom sources,
+policy examples, and host limitations.
 
 ## Skills At A Glance
 
@@ -45,6 +40,7 @@ scheduler/worktree requirements.
   - [/factory-feedback](skills/factory-feedback/SKILL.md)
   - [/factory-review-prs](skills/factory-review-prs/SKILL.md)
   - [/factory-ship](skills/factory-ship/SKILL.md)
+  - [/factory-babysit-pr](skills/factory-babysit-pr/SKILL.md)
   - [/factory-watchdog](skills/factory-watchdog/SKILL.md)
   - [/factory-recover](skills/factory-recover/SKILL.md)
 - [`/an`](skills/an/SKILL.md) - Open and operate Agent-Native apps beside the conversation.

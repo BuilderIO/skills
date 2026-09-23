@@ -1,5 +1,6 @@
 ---
 name: factory
+installer-group: factory
 description: >-
   Experimental workflow for configuring an autonomous software delivery
   factory. Use when choosing feedback sources, schedules, worktree behavior,
@@ -8,45 +9,56 @@ description: >-
 
 # Factory
 
-Set up or change a configurable software delivery workflow for the current
-project. This skill coordinates the factory modules; it does not assume a
-provider, repository, schedule, or level of autonomy.
+Configure the current project to turn selected product or maintenance signals
+into verified, reviewed changes. Factory coordinates the other modules; it
+does not assume a provider, repository, schedule, or autonomy level.
 
-## Configure
+## Set up
 
-1. Read .agent-factory/config.yaml if it exists. Preserve explicit choices and
-   ask only for decisions the user has not made.
-2. Discover available source integrations and scheduler capabilities. A
-   disconnected or unreadable source is unavailable, not empty.
-3. Configure each action independently: implement fixes, reply to reporters,
-   close issues, review or approve PRs, merge PRs, deploy, resume work, and send
-   watchdog notices. Never infer permission for one action from permission for
-   another.
-4. Set schedules, time zone, repository/worktree ownership, runtime/model
-   options, and notification rules only where the host supports them.
-5. Write the agreed project configuration to .agent-factory/config.yaml. Store
-   connector names or opaque references there, never credentials or tokens.
-6. If the user asks to install or update automations, create or update one job
-   per enabled workflow through the host's supported scheduler. Read back the
-   saved settings and report any field the host could not honor. Do not claim
-   an automation exists when only its prompt or config was written.
+Use the [Factory configuration reference](https://github.com/BuilderIO/skills/blob/main/docs/factory/configuration.md) for field meanings, examples, and host limitations.
 
-Use conservative defaults for unspecified behavior: no external replies,
-issue closure, approvals, merges, production deploys, or resumption. A missing
-or unclear policy means hold for a human. Criteria must name both what may
-proceed and what must stop.
+1. Read `.agent-factory/config.yaml` if it exists. Preserve explicit choices.
+2. Show the read-capable integrations this host exposes. There is no built-in
+   Factory source catalog. Confirm the source scope; add a custom source only
+   when a connected tool can read it.
+3. Set each action policy independently: implement, reply, close, review,
+   approve, publish, merge, deploy, recover, and notify.
+4. Choose schedules, time zone, worktree ownership, runtime, and notifications
+   only where the host supports them.
+5. Write the agreed config. Never put credentials or tokens in it.
+6. If asked to create automations, create one job per enabled workflow, then
+   read back its saved schedule, target, runtime, and notification settings.
+   Report fields the host could not honor.
 
-## Use the modules
+A config entry or written prompt does not prove a job exists. Treat unavailable
+or partial reads as unknown, not empty or successful.
 
-- factory-feedback: collect and disposition configured feedback.
-- factory-review-prs: review PRs and apply separately configured approval and
-  merge policies.
-- factory-ship: publish work and complete the configured delivery lifecycle.
-- factory-watchdog: find stalled, explicitly authorized ship work and nudge
-  only when the live state proves a next step is due.
-- factory-recover: identify interrupted runs and resume only when their
-  original authorization and worktree remain valid.
+## Safe defaults
 
-Each module can run independently. Read the same project config before work;
-do not broaden an action because a different workflow is more autonomous.
+- Keep replies, issue closure, approvals, merges, production deploys, and
+  recovery disabled unless their own policy is explicit.
+- For criteria-based actions, record both conditions that allow the action and
+  conditions that require a human.
+- Missing or unclear policy means hold. Permission to fix does not authorize
+  publication or another external action.
 
+## Modules
+
+| Skill | Scope |
+| --- | --- |
+| `factory-feedback` | Triage configured feedback and issue sources. |
+| `factory-review-prs` | Review a filtered PR queue. |
+| `factory-babysit-pr` | Follow one explicitly authorized PR. |
+| `factory-ship` | Publish and complete a delivery lifecycle. |
+| `factory-watchdog` | Find stopped, authorized delivery work. |
+| `factory-recover` | Resume valid interrupted runs. |
+
+Modules can run independently. Each reads the same project config and must not
+borrow permissions from another workflow.
+
+## Report
+
+State which sources and host capabilities were verified, which policies and
+jobs were configured, what remains manual, and any unavailable evidence. Never
+claim that a schedule, integration, merge, or deployment exists without reading
+back its live state.
