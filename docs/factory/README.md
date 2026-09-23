@@ -55,14 +55,14 @@ Every Factory skill is marked experimental in the installer and skills list.
 
 | Skill | Use it for |
 | --- | --- |
-| `/factory` (Experimental) | Choose sources, policies, schedules, worktrees, and host automations. |
-| `/factory-collect` (Experimental) | Collect and triage configured feedback, product telemetry, errors, and issues. |
-| `/factory-lookback` (Experimental) | Look across a bounded history for recurring symptoms and systemic fixes. |
-| `/factory-review-prs` (Experimental) | Review a filtered queue of PRs; apply separate reply, approval, and merge rules. |
-| `/factory-babysit-pr` (Experimental) | Follow one explicitly authorized PR, fix in-scope findings, and apply separate publish, reply, approval, merge, and soak rules. |
-| `/factory-ship` (Experimental) | Publish and complete delivery work under the project's policy. |
-| `/factory-watchdog` (Experimental) | Find stalled, explicitly authorized delivery work and notify only when a concrete next step is due. |
-| `/factory-recover` (Experimental) | Resume an interrupted run only when its original authorization and worktree are still valid. |
+| `/factory`| Choose sources, policies, schedules, worktrees, and host automations. |
+| `/factory-collect`| Collect and triage configured feedback, product telemetry, errors, and issues. |
+| `/factory-lookback`| Look across a bounded history for recurring symptoms and systemic fixes. |
+| `/factory-review-prs`| Review a filtered queue of PRs; apply separate reply, approval, and merge rules. |
+| `/factory-babysit-pr`| Follow one explicitly authorized PR, fix in-scope findings, and apply separate publish, reply, approval, merge, and soak rules. |
+| `/factory-ship`| Publish and complete delivery work under the project's policy. |
+| `/factory-watchdog`| Find stalled, explicitly authorized delivery work and notify only when a concrete next step is due. |
+| `/factory-recover`| Resume an interrupted run only when its original authorization and worktree are still valid. |
 
 `/factory-collect` handles current items. `/factory-lookback` compares history
 to find patterns the normal item-by-item flow has missed or only fixed
