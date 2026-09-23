@@ -16,14 +16,14 @@ See the [full CLI docs below](#install).
   sources, prompts, schedules, and delivery policies.
   - [`/factory-collect`](skills/factory-collect/SKILL.md) - Collect
   feedback, product telemetry, errors, and issues.
-  - [`/factory-lookback`](skills/factory-lookback/SKILL.md) - Find
-  recurring signals and systemic fixes across a chosen time window.
-  - [`/factory-review-prs`](skills/factory-review-prs/SKILL.md) -
-  Review a PR queue with separate reply, approval, and merge criteria.
   - [`/factory-babysit-pr`](skills/factory-babysit-pr/SKILL.md) -
   Follow one authorized PR through checks and review.
+  - [`/factory-review-prs`](skills/factory-review-prs/SKILL.md) -
+  Review a PR queue with separate reply, approval, and merge criteria.
   - [`/factory-ship`](skills/factory-ship/SKILL.md) - Publish
   delivery work under configured verification and merge policies.
+  - [`/factory-lookback`](skills/factory-lookback/SKILL.md) - Find
+  recurring signals and systemic fixes across a chosen time window.
   - [`/factory-watchdog`](skills/factory-watchdog/SKILL.md) - Find
   stalled delivery work and notify when a concrete next step is due.
   - [`/factory-recover`](skills/factory-recover/SKILL.md) - Resume
