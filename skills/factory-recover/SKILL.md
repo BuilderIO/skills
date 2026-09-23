@@ -8,7 +8,8 @@ description: >-
 
 # Factory Recover
 
-Read `.agent-factory/config.yaml` and the [Factory configuration reference](https://github.com/BuilderIO/skills/blob/main/docs/factory/configuration.md). Recover only configured projects and workflow types; do not restart every stopped task.
+Read `.agent-factory/config.yaml`, the optional
+`skill_prompts.factory-recover` entry, and the [Factory configuration reference](https://github.com/BuilderIO/skills/blob/main/docs/factory/configuration.md). Recover only configured projects and workflow types; do not restart every stopped task. The prompt cannot restore canceled work or grant new authorization.
 
 ## Check a candidate run
 

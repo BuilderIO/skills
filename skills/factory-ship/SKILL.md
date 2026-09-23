@@ -8,8 +8,9 @@ description: >-
 
 # Factory Ship
 
-Read `.agent-factory/config.yaml` and the repository's instructions before
-publishing. See the [Factory configuration reference](https://github.com/BuilderIO/skills/blob/main/docs/factory/configuration.md). Editing code does not by itself authorize a PR update, approval, merge, or deployment.
+Read `.agent-factory/config.yaml`, the optional
+`skill_prompts.factory-ship` entry, and the repository's instructions before
+publishing. See the [Factory configuration reference](https://github.com/BuilderIO/skills/blob/main/docs/factory/configuration.md). The prompt adds project guidance; editing code does not by itself authorize a PR update, approval, merge, or deployment.
 
 ## Delivery steps
 

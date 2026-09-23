@@ -13,7 +13,7 @@ existing choices and asks about missing ones.
 
 ## Quick start
 
-This example reads from four common source types and only permits fixes that
+This example reads from several common source types and only permits fixes that
 match the stated criteria. Replace the scopes and policies with your own.
 
 ```yaml
@@ -31,22 +31,35 @@ repositories:
 sources:
   - id: chat-feedback
     provider: slack
+    type: feedback
     scope: channel-id
   - id: code-issues
     provider: github
+    type: issue
     scope: example/project
   - id: tracker-issues
     provider: jira
+    type: issue
     scope: PROJECT
   - id: error-reports
     provider: sentry
+    type: error
     scope: organization/project
+  - id: product-events
+    provider: custom
+    type: telemetry
+    scope: example/project
+    integration: analytics-mcp
+    read_tool: query_events
+    arguments:
+      project: example
+      since: last 30 days
 
 workflows:
-  feedback:
+  collect:
     enabled: true
     schedule: every 4 hours
-    sources: [chat-feedback, code-issues, tracker-issues, error-reports]
+    sources: [chat-feedback, code-issues, tracker-issues, error-reports, product-events]
     implement:
       mode: criteria
       allow: [verified defects in owned code]
@@ -55,11 +68,25 @@ workflows:
       mode: never
     close:
       mode: never
+  lookback:
+    enabled: true
+    schedule: monthly
+    window: last 30 days
+    compare_with: previous 30 days
+    sources: [chat-feedback, product-events, error-reports]
+    implement:
+      mode: manual
+
+skill_prompts:
+  factory-ship: |
+    Keep release summaries concise and link the verified change.
 ```
 
 `slack`, `github`, `jira`, and `sentry` are examples, not bundled Factory
 connectors. The actual source choices depend on tools your agent host exposes.
 See [Add a source](#add-a-source) before configuring another provider.
+The `product-events` entry is a placeholder for a connected analytics tool;
+replace its integration, query, and scope with the names your host provides.
 
 ## Add a source
 
@@ -75,6 +102,7 @@ Examples shown in this guide:
 | Code issues | GitHub | Repository |
 | Work tracking | Jira | Project key |
 | Error monitoring | Sentry | Organization and project |
+| Product telemetry | Connected analytics or event-query tool | Product, project, and time window |
 | Custom product feedback | Any connected MCP/API tool | The tool's project, workspace, or query boundary |
 
 To add a custom source, add a `sources[]` entry. Record enough detail to tell
@@ -119,7 +147,7 @@ confirms how the host and skills will use them.
 | `version` | Convention version. Use `1` for this guide. |
 | `timezone` | IANA time zone used to interpret schedule text, for example `America/Los_Angeles`. |
 | `repositories` | Repositories the configured workflows may inspect or change. |
-| `sources` | Feedback, issue, or error sources available to workflows. |
+| `sources` | Feedback, issue, error, or telemetry sources available to workflows. |
 | `workflows` | Map of named workflow settings. Each workflow has its own schedule and action policies. |
 
 ### `repositories[]`
@@ -140,8 +168,9 @@ checkout.
 
 | Property | Meaning |
 | --- | --- |
-| `sources[].id` | Short, unique name used in `workflows.feedback.sources`. |
+| `sources[].id` | Short, unique name used by `workflows.collect.sources` or `workflows.lookback.sources`. |
 | `sources[].provider` | Connected provider label, such as `slack`, `github`, `jira`, or `sentry`. Use `custom` for another connected tool. This label does not connect the provider. |
+| `sources[].type` | Optional interpretation hint, such as `feedback`, `issue`, `error`, or `telemetry`. It is descriptive policy, not a connector type checked by a parser. |
 | `sources[].scope` | Exact channel, repository, project, organization/project, or other boundary to read. Prefer stable IDs when available. |
 | `sources[].integration` | Optional custom field naming the connected MCP/API integration. |
 | `sources[].read_tool` | Optional custom field naming the read/list operation. |
@@ -150,7 +179,7 @@ checkout.
 
 ### Common workflow fields
 
-`workflows` is a map. The documented workflow names are `feedback`,
+`workflows` is a map. The documented workflow names are `collect`, `lookback`,
 `pull-requests`, `pr-babysitting`, `ship-watchdog`, and `recovery`.
 
 | Property | Meaning |
@@ -162,18 +191,63 @@ Schedules vary by host. A cron schedule and a thread heartbeat are different
 kinds of automation; `/factory` must preserve the host's semantics and verify
 the persisted target, runtime, schedule, and notification settings.
 
-### `workflows.feedback`
+### `workflows.collect`
 
 | Property | Meaning |
 | --- | --- |
-| `workflows.feedback.sources` | List of IDs from the top-level `sources` list. These are config IDs, not provider names. |
-| `workflows.feedback.implement.mode` | Policy for making a fix. `criteria` needs explicit allow and stop conditions; `never` or `manual` keeps fixes human-directed. |
-| `workflows.feedback.implement.allow` | Conditions that permit implementation, such as confirmed defects in named code areas. |
-| `workflows.feedback.implement.stop` | Conditions that hold a change for a person, such as security-sensitive work or unclear product intent. |
-| `workflows.feedback.reply.mode` | Independent policy for public replies. `never` disables replies; a milestone such as `after-fix` means wait for that proof point. |
-| `workflows.feedback.reply.tone` | Optional voice for enabled replies. |
-| `workflows.feedback.reply.guidance` | Optional content instructions, such as whether to link the fix. |
-| `workflows.feedback.close.mode` | Independent issue-closing policy. Example: `after-merge` closes only after the configured merge point; `never` leaves the issue open. |
+| `workflows.collect.sources` | IDs from the top-level `sources` list to read for current feedback, telemetry, errors, and issues. |
+| `workflows.collect.implement.mode` | Policy for making a fix. `criteria` needs explicit allow and stop conditions; `never` or `manual` keeps fixes human-directed. |
+| `workflows.collect.implement.allow` | Conditions that permit implementation, such as confirmed defects in named code areas. |
+| `workflows.collect.implement.stop` | Conditions that hold a change for a person, such as security-sensitive work or unclear product intent. |
+| `workflows.collect.reply.mode` | Independent policy for public replies. `never` disables replies; a milestone such as `after-fix` means wait for that proof point. |
+| `workflows.collect.reply.tone` | Optional voice for enabled replies. |
+| `workflows.collect.reply.guidance` | Optional content instructions, such as whether to link the fix. |
+| `workflows.collect.close.mode` | Independent issue-closing policy. Example: `after-merge` closes only after the configured merge point; `never` leaves the issue open. |
+
+If an earlier experimental config uses `workflows.feedback`, rename that key
+and its nested fields to `workflows.collect`; the skills do not run a config
+migration.
+
+### `workflows.lookback`
+
+Use this workflow for a bounded retrospective across sources. It complements
+current intake: it compares recurring symptoms, telemetry, error patterns, and
+prior fixes to find shared causes the normal item-by-item flow did not resolve.
+
+| Property | Meaning |
+| --- | --- |
+| `workflows.lookback.sources` | IDs from the top-level source list to compare. Use only connected sources with the required history. |
+| `workflows.lookback.window` | Time range to inspect, such as `last 30 days`. State the dates the host actually queried. |
+| `workflows.lookback.compare_with` | Optional baseline, such as the previous 30 days, used to distinguish a new increase from a recurring level. |
+| `workflows.lookback.focus` | Optional text naming patterns to prioritize, such as reports marked fixed that later recur. |
+| `workflows.lookback.implement.mode` | Whether the run may make a systemic fix. Use `manual` for recommendations only; `criteria` needs explicit allow and stop conditions. |
+| `workflows.lookback.implement.allow` | Conditions under which a confirmed systemic cause may be fixed. |
+| `workflows.lookback.implement.stop` | Conditions requiring a human decision. |
+| `workflows.lookback.reply.mode` | Independent policy for source replies. It does not authorize issue closure or delivery. |
+
+An incomplete history or unavailable source limits the conclusion. Never report
+“no recurring issues” when coverage is partial.
+
+### `skill_prompts`
+
+This top-level map adds project-specific prompt text to individual Factory
+skills. Keys are skill names without a slash; values are arbitrary multiline
+strings. Add only the keys you need, and replace or remove a key to update the
+project's custom prompt.
+
+~~~yaml
+skill_prompts:
+  factory-ship: |
+    Keep release summaries concise and link the verified change.
+  factory-babysit-pr: |
+    Report check failures with the failing job name and exact next action.
+~~~
+
+Each Factory skill reads and applies its matching entry on direct runs and
+includes it in saved automation prompts when scheduling that workflow. The
+overlay is additional guidance, not a replacement for the skill. It cannot
+override the user's current instruction, repository or host safeguards, or a
+separate action policy. A prompt does not create a schedule or integration.
 
 ### `workflows.pull-requests`
 

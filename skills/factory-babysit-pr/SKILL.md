@@ -13,9 +13,11 @@ Follow one authorized PR or merge request through a delivery lifecycle. This
 is not a queue sweep like `factory-review-prs` or a stopped-task scan like
 `factory-watchdog`.
 
-Read `.agent-factory/config.yaml`, the target repository's instructions, and
-the [Factory configuration reference](https://github.com/BuilderIO/skills/blob/main/docs/factory/configuration.md#workflowspr-babysitting).
+Read `.agent-factory/config.yaml`, the optional
+`skill_prompts.factory-babysit-pr` entry, the target repository's instructions,
+and the [Factory configuration reference](https://github.com/BuilderIO/skills/blob/main/docs/factory/configuration.md#workflowspr-babysitting).
 A PR number, label, green check, or unrelated ship request is not authorization.
+The prompt is additional project guidance, not PR authorization.
 
 ## Each pass
 
