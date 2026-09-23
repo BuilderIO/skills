@@ -10,39 +10,21 @@ npx @agent-native/skills@latest add
 
 See the [full CLI docs below](#install).
 
-## Experimental Factory Skills
-
-Build configurable feedback-to-delivery workflows from connected sources such
-as chat, issue trackers, and error monitors. The experimental modules cover
-feedback intake, PR queue review and single-PR babysitting, shipping, ship
-watchdogs, and recovery of interrupted runs. Configure each action
-independently, including when to fix, reply, approve, merge, close, deploy,
-resume, or notify.
-
-Run the interactive installer and select **Factory** to preselect its skills.
-You can deselect individual skills, then choose the supported clients and
-user- or project-level install scope:
-
-```sh
-npx @agent-native/skills@latest add
-```
-
-Use /factory to write .agent-factory/config.yaml and configure connected
-sources, per-action autonomy, schedules, and host automations. The [Factory
-guide](docs/factory/README.md) gives the workflow overview; the [configuration
-reference](docs/factory/configuration.md) documents YAML fields, custom sources,
-policy examples, and host limitations.
-
 ## Skills At A Glance
 
-- **Experimental Factory**: [guide](docs/factory/README.md)
-  - [/factory](skills/factory/SKILL.md) setup
-  - [/factory-feedback](skills/factory-feedback/SKILL.md)
-  - [/factory-review-prs](skills/factory-review-prs/SKILL.md)
-  - [/factory-ship](skills/factory-ship/SKILL.md)
-  - [/factory-babysit-pr](skills/factory-babysit-pr/SKILL.md)
-  - [/factory-watchdog](skills/factory-watchdog/SKILL.md)
-  - [/factory-recover](skills/factory-recover/SKILL.md)
+- [`/factory` (experimental)](skills/factory/SKILL.md) - Configure connected sources and
+  policies for feedback, code changes, reviews, and delivery.
+- [`/factory-feedback`](skills/factory-feedback/SKILL.md) - Triage configured
+  feedback, issues, and errors under separate fix and reply rules.
+- [`/factory-review-prs`](skills/factory-review-prs/SKILL.md) - Review a filtered
+  PR queue with separate reply, approval, and merge criteria.
+- [`/factory-babysit-pr`](skills/factory-babysit-pr/SKILL.md) - Follow one authorized PR through checks and review.
+- [`/factory-ship`](skills/factory-ship/SKILL.md) - Publish delivery work under the
+  project's configured verification and merge policy.
+- [`/factory-watchdog`](skills/factory-watchdog/SKILL.md) - Find stalled delivery
+  work and notify when a concrete next step is due.
+- [`/factory-recover`](skills/factory-recover/SKILL.md) - Resume interrupted work
+  when its authorization and worktree are still valid.
 - [`/an`](skills/an/SKILL.md) - Open and operate Agent-Native apps beside the conversation.
 - [`/webmcp`](skills/webmcp/README.md) - Open web apps in the built-in browser and use MCP tools first.
 - [`/visual-plan`](#visual-plan) - Turn text plans into rich visual plans.
@@ -60,6 +42,29 @@ policy examples, and host limitations.
 - [`/turn-into-app`](#turn-into-app) - Turn the current thread or a skill into a runnable Agent-Native app.
 
 ## Skill Details
+
+### [`/factory` (experimental)](skills/factory/SKILL.md)
+
+Factory is an experimental set of agent skills for turning signals from
+connected feedback sources into policy-gated software delivery. Configure
+sources, schedules, and separate rules for fixing, replying, reviewing,
+approving, merging, deploying, and closing. Each step follows its own policy
+and can stop for a human decision.
+
+```mermaid
+flowchart LR
+    sources["Feedback and telemetry"] --> agent["Factory agent"]
+    agent -->|"policy allows"| fix["Isolated fix<br/>checks and verification"]
+    agent -->|"unclear or out of scope"| human["Human decision"]
+    fix --> pr["Pull request"]
+    pr -->|"approval and merge rules"| ship["Ship"]
+    pr -->|"needs judgment"| human
+    ship -->|"if allowed"| source["Reply or close source item"]
+```
+
+See the [Factory guide](docs/factory/README.md) for the workflow and setup.
+The [configuration reference](docs/factory/configuration.md) explains the
+available YAML fields, source patterns, policies, and host limitations.
 
 ### [`/an`](skills/an/SKILL.md)
 
