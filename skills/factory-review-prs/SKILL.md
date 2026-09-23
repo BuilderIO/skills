@@ -11,6 +11,9 @@ description: >-
 This skill reviews a filtered queue. For one long-lived, explicitly authorized
 PR, use `factory-babysit-pr`. Read the filters and independent action policies
 from `.agent-factory/config.yaml`; see the [configuration reference](https://github.com/BuilderIO/skills/blob/main/docs/factory/configuration.md).
+Apply the optional `skill_prompts.factory-review-prs` entry as additional
+project guidance; it does not replace this skill or authorize an action
+disabled by policy.
 
 ## Review the queue
 

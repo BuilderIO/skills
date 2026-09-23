@@ -12,19 +12,22 @@ See the [full CLI docs below](#install).
 
 ## Skills At A Glance
 
-- [`/factory` (experimental)](skills/factory/SKILL.md) - Configure connected sources and
-  policies for feedback, code changes, reviews, and delivery.
-- [`/factory-feedback`](skills/factory-feedback/SKILL.md) - Triage configured
-  feedback, issues, and errors under separate fix and reply rules.
-- [`/factory-review-prs`](skills/factory-review-prs/SKILL.md) - Review a filtered
-  PR queue with separate reply, approval, and merge criteria.
-- [`/factory-babysit-pr`](skills/factory-babysit-pr/SKILL.md) - Follow one authorized PR through checks and review.
-- [`/factory-ship`](skills/factory-ship/SKILL.md) - Publish delivery work under the
-  project's configured verification and merge policy.
-- [`/factory-watchdog`](skills/factory-watchdog/SKILL.md) - Find stalled delivery
-  work and notify when a concrete next step is due.
-- [`/factory-recover`](skills/factory-recover/SKILL.md) - Resume interrupted work
-  when its authorization and worktree are still valid.
+- [`/factory` (experimental)](skills/factory/SKILL.md) - Configure connected
+  sources, prompts, schedules, and delivery policies.
+- [`/factory-collect` (experimental)](skills/factory-collect/SKILL.md) - Collect
+  feedback, product telemetry, errors, and issues.
+- [`/factory-lookback` (experimental)](skills/factory-lookback/SKILL.md) - Find
+  recurring signals and systemic fixes across a chosen time window.
+- [`/factory-review-prs` (experimental)](skills/factory-review-prs/SKILL.md) -
+  Review a PR queue with separate reply, approval, and merge criteria.
+- [`/factory-babysit-pr` (experimental)](skills/factory-babysit-pr/SKILL.md) -
+  Follow one authorized PR through checks and review.
+- [`/factory-ship` (experimental)](skills/factory-ship/SKILL.md) - Publish
+  delivery work under configured verification and merge policies.
+- [`/factory-watchdog` (experimental)](skills/factory-watchdog/SKILL.md) - Find
+  stalled delivery work and notify when a concrete next step is due.
+- [`/factory-recover` (experimental)](skills/factory-recover/SKILL.md) - Resume
+  interrupted work when its authorization and worktree are still valid.
 - [`/an`](skills/an/SKILL.md) - Open and operate Agent-Native apps beside the conversation.
 - [`/webmcp`](skills/webmcp/README.md) - Open web apps in the built-in browser and use MCP tools first.
 - [`/visual-plan`](#visual-plan) - Turn text plans into rich visual plans.
@@ -45,15 +48,18 @@ See the [full CLI docs below](#install).
 
 ### [`/factory` (experimental)](skills/factory/SKILL.md)
 
-Factory is an experimental set of agent skills for turning signals from
-connected feedback sources into policy-gated software delivery. Configure
-sources, schedules, and separate rules for fixing, replying, reviewing,
-approving, merging, deploying, and closing. Each step follows its own policy
-and can stop for a human decision.
+Factory is an experimental set of agent skills for turning feedback, product
+telemetry, errors, and delivery signals into policy-gated software changes.
+The modules can collect current reports, look back for recurring failures, and
+review or ship changes. Configure schedules and separate rules for fixing,
+replying, reviewing, approving, merging, deploying, and closing.
 
 ```mermaid
 flowchart LR
-    sources["Feedback and telemetry"] --> agent["Factory agent"]
+    sources["Feedback and telemetry"] --> collect["/factory-collect"]
+    sources --> lookback["/factory-lookback<br/>recurring patterns"]
+    collect --> agent["Factory workflow"]
+    lookback --> agent
     agent -->|"policy allows"| fix["Isolated fix<br/>checks and verification"]
     agent -->|"unclear or out of scope"| human["Human decision"]
     fix --> pr["Pull request"]
@@ -61,6 +67,46 @@ flowchart LR
     pr -->|"needs judgment"| human
     ship -->|"if allowed"| source["Reply or close source item"]
 ```
+
+#### Configuration at a glance
+
+This abbreviated example uses placeholder scopes and connected tools. Factory
+does not install these integrations or create the schedule for you.
+
+```yaml
+version: 1
+timezone: UTC
+
+sources:
+  - id: support
+    provider: slack
+    scope: channel-id
+  - id: errors
+    provider: sentry
+    scope: organization/project
+
+workflows:
+  collect:
+    enabled: true
+    sources: [support, errors]
+    reply:
+      mode: never
+  lookback:
+    enabled: true
+    schedule: monthly
+    window: last 30 days
+    sources: [support, errors]
+    implement:
+      mode: manual
+
+skill_prompts:
+  factory-ship: |
+    Keep release summaries concise and link the verified change.
+```
+
+Each Factory skill reads its own optional prompt entry as additional project
+guidance. Prompt text cannot authorize an action that its separate policy
+blocks.
 
 See the [Factory guide](docs/factory/README.md) for the workflow and setup.
 The [configuration reference](docs/factory/configuration.md) explains the
