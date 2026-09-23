@@ -23,8 +23,9 @@ normal item-by-item flows keep missing or fixing only temporarily.
    source filters, dates, counts, and unavailable or truncated sources. Do not
    report a complete lookback when coverage is partial.
 3. Include relevant feedback, analytics or telemetry, runtime errors,
-   recurring CI or review failures, repeated recovery attempts, and prior
-   fixes marked shipped or verified when those records are available.
+   recurring CI or review failures, repeated recovery attempts, replies to
+   earlier information requests, and prior fixes marked shipped or verified
+   when those records are available.
 4. Cluster records by underlying symptom and affected boundary, not wording
    alone. Keep event counts, affected users or sessions, time range, versions,
    and distinct source links separate; do not infer identity or impact from
@@ -37,6 +38,12 @@ source and inspect prior dispositions, commits, tests, and release evidence.
 Check whether the symptom recurred after a claimed fix, appeared through a
 sibling caller, or escaped because the normal workflow lacked a signal, owner,
 verification step, or recovery path.
+
+For a report previously held for more information, inspect the full source
+thread for new replies. Re-triage the original report with the new details and
+check whether the normal fix flow now has enough evidence to proceed. Keep the
+item open when the answer is still incomplete; do not treat a reply as a fix or
+as permission for another action.
 
 Reproduce a representative current case when possible. Trace related callers
 and surfaces to the shared boundary that can explain the evidence. Prefer one
@@ -64,6 +71,8 @@ For each pattern, report:
 
 - the source links, date range, query coverage, counts, and impact evidence;
 - prior fixes or dispositions and whether the symptom returned;
+- information requests, answers received, and whether they changed the
+  evidence or next step;
 - confirmed cause, alternatives still uncertain, and the shared boundary;
 - recommended or completed systemic change, regression proof, and remaining
   rollout or live-verification work;
