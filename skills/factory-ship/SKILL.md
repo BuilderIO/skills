@@ -8,6 +8,9 @@ description: >-
 
 # Factory Ship
 
+> Start with the [Factory guide](../../docs/factory/README.md) for workflow
+> setup and configuration.
+
 Read `.agent-factory/config.yaml`, the optional
 `skill_prompts.factory-ship` entry, and the repository's instructions before
 publishing. See the [Factory configuration reference](https://github.com/BuilderIO/skills/blob/main/docs/factory/configuration.md). The prompt adds project guidance; editing code does not by itself authorize a PR update, approval, merge, or deployment.

@@ -65,7 +65,10 @@ workflows:
       allow: [verified defects in owned code]
       stop: [security-sensitive changes, unclear product intent]
     reply:
-      mode: never
+      mode: criteria
+      require: [one missing detail blocks triage or verification]
+      tone: warm, clear, and concise
+      guidance: Ask one targeted question, then re-triage when an answer arrives.
     close:
       mode: never
   lookback:
@@ -76,6 +79,14 @@ workflows:
     sources: [chat-feedback, product-events, error-reports]
     implement:
       mode: manual
+  human-digest:
+    enabled: true
+    schedule: weekly
+    window: last 7 days
+    repositories: [app]
+    sources: [chat-feedback, code-issues, error-reports, product-events]
+    include: [pull-requests, issues, feedback, errors, telemetry]
+    granularity: balanced
 
 skill_prompts:
   factory-ship: |
@@ -103,6 +114,7 @@ Examples shown in this guide:
 | Work tracking | Jira | Project key |
 | Error monitoring | Sentry | Organization and project |
 | Product telemetry | Connected analytics or event-query tool | Product, project, and time window |
+| Stalled delivery work | Connected task or workflow host | Project, job, or run |
 | Custom product feedback | Any connected MCP/API tool | The tool's project, workspace, or query boundary |
 
 To add a custom source, add a `sources[]` entry. Record enough detail to tell
@@ -168,9 +180,9 @@ checkout.
 
 | Property | Meaning |
 | --- | --- |
-| `sources[].id` | Short, unique name used by `workflows.collect.sources` or `workflows.lookback.sources`. |
+| `sources[].id` | Short, unique name referenced by a workflow's `sources` list. |
 | `sources[].provider` | Connected provider label, such as `slack`, `github`, `jira`, or `sentry`. Use `custom` for another connected tool. This label does not connect the provider. |
-| `sources[].type` | Optional interpretation hint, such as `feedback`, `issue`, `error`, or `telemetry`. It is descriptive policy, not a connector type checked by a parser. |
+| `sources[].type` | Optional interpretation hint, such as `feedback`, `issue`, `error`, `telemetry`, or `delivery`. It is descriptive policy, not a connector type checked by a parser. |
 | `sources[].scope` | Exact channel, repository, project, organization/project, or other boundary to read. Prefer stable IDs when available. |
 | `sources[].integration` | Optional custom field naming the connected MCP/API integration. |
 | `sources[].read_tool` | Optional custom field naming the read/list operation. |
@@ -180,7 +192,8 @@ checkout.
 ### Common workflow fields
 
 `workflows` is a map. The documented workflow names are `collect`, `lookback`,
-`pull-requests`, `pr-babysitting`, `ship-watchdog`, and `recovery`.
+`human-digest`, `pull-requests`, `pr-babysitting`, `ship-watchdog`, and
+`recovery`.
 
 | Property | Meaning |
 | --- | --- |
@@ -200,6 +213,7 @@ the persisted target, runtime, schedule, and notification settings.
 | `workflows.collect.implement.allow` | Conditions that permit implementation, such as confirmed defects in named code areas. |
 | `workflows.collect.implement.stop` | Conditions that hold a change for a person, such as security-sensitive work or unclear product intent. |
 | `workflows.collect.reply.mode` | Independent policy for public replies. `never` disables replies; a milestone such as `after-fix` means wait for that proof point. |
+| `workflows.collect.reply.require` | Conditions that allow a reply, such as when one missing detail blocks triage or verification. |
 | `workflows.collect.reply.tone` | Optional voice for enabled replies. |
 | `workflows.collect.reply.guidance` | Optional content instructions, such as whether to link the fix. |
 | `workflows.collect.close.mode` | Independent issue-closing policy. Example: `after-merge` closes only after the configured merge point; `never` leaves the issue open. |
@@ -228,6 +242,26 @@ prior fixes to find shared causes the normal item-by-item flow did not resolve.
 An incomplete history or unavailable source limits the conclusion. Never report
 “no recurring issues” when coverage is partial.
 
+### `workflows.human-digest`
+
+This is a read-only queue of configured work that still needs a person's
+judgment. A direct run defaults to the last 7 days, all configured categories,
+and balanced detail unless the user requests another window, category, or level.
+The workflow never replies, approves, merges, closes, assigns, changes status,
+or notifies people.
+
+| Property | Meaning |
+| --- | --- |
+| `workflows.human-digest.repositories` | IDs from `repositories` to inspect for pull requests and code-host issues. Omit to use all configured repositories. |
+| `workflows.human-digest.sources` | IDs from `sources` to inspect for feedback, issues, errors, telemetry, or custom records. Omit to use all configured sources. |
+| `workflows.human-digest.include` | Optional categories: `pull-requests`, `issues`, `feedback`, `errors`, `telemetry`, and `delivery`. Omit it to include every category available from the configured repositories and sources. |
+| `workflows.human-digest.window` | Time range for each digest, such as `last 7 days`. Manual runs use the same default when no range is requested. |
+| `workflows.human-digest.granularity` | `brief`, `balanced`, or `detailed`. Defaults to `balanced`. |
+
+Group repeated reports only when their evidence points to the same issue.
+Include every source link and report partial coverage, unavailable connectors,
+and uncertain status rather than treating them as empty or resolved.
+
 ### `skill_prompts`
 
 This top-level map adds project-specific prompt text to individual Factory
@@ -241,6 +275,10 @@ skill_prompts:
     Keep release summaries concise and link the verified change.
   factory-babysit-pr: |
     Report check failures with the failing job name and exact next action.
+  factory-collect: |
+    Ask for the smallest missing detail that would let us verify the report.
+  factory-human-digest: |
+    Group repeated UX concerns but include every source link and required decision.
 ~~~
 
 Each Factory skill reads and applies its matching entry on direct runs and

@@ -9,6 +9,9 @@ description: >-
 
 # Factory
 
+> Start with the [Factory guide](../../docs/factory/README.md) for workflow
+> setup and configuration.
+
 Read `.agent-factory/config.yaml` and apply the optional
 `skill_prompts.factory` entry as additional project guidance. Configure the
 current project to turn selected product or maintenance signals
@@ -52,6 +55,7 @@ or partial reads as unknown, not empty or successful.
 | --- | --- |
 | `factory-collect` | Collect and triage configured feedback, telemetry, errors, and issues. |
 | `factory-lookback` | Find recurring signals and brittle paths that need systemic fixes. |
+| `factory-human-digest` | Aggregate work that still needs a human decision. |
 | `factory-review-prs` | Review a filtered PR queue. |
 | `factory-babysit-pr` | Follow one explicitly authorized PR. |
 | `factory-ship` | Publish and complete a delivery lifecycle. |

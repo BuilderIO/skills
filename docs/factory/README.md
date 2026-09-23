@@ -19,19 +19,25 @@ connector catalog.
 flowchart LR
   sources["Connected sources<br/>feedback · telemetry · issues · errors"] --> collect["/factory-collect<br/>Current intake"]
   sources -. bounded history .-> lookback["/factory-lookback<br/>Recurring patterns"]
+  sources --> digest["/factory-human-digest<br/>Human decision queue"]
   collect --> fix{"Fix policy allows it?"}
+  collect -->|needs a person| digest
   lookback --> fix
+  lookback -->|unresolved decision| digest
   fix -->|hold| human["Human decision"]
   fix -->|yes| worktree["Isolated worktree<br/>checks and verification"]
   worktree --> pr["Open or update PR"]
   pr --> queue["/factory-review-prs<br/>Review a PR queue"]
   pr --> babysit["/factory-babysit-pr<br/>Watch one authorized PR"]
+  pr -->|needs human judgment| digest
+  digest --> human
   queue --> gates{"Separate approval and merge gates"}
   babysit --> gates
   gates -->|hold| human
   gates -->|allowed| ship["/factory-ship"]
   scheduler["Host scheduler"] -. starts enabled jobs .-> collect
   scheduler -.-> lookback
+  scheduler -.-> digest
   scheduler -.-> queue
   scheduler -.-> babysit
   scheduler -.-> followup["/factory-watchdog · /factory-recover"]
@@ -58,6 +64,7 @@ Every Factory skill is marked experimental in the installer and skills list.
 | `/factory`| Choose sources, policies, schedules, worktrees, and host automations. |
 | `/factory-collect`| Collect and triage configured feedback, product telemetry, errors, and issues. |
 | `/factory-lookback`| Look across a bounded history for recurring symptoms and systemic fixes. |
+| `/factory-human-digest`| Aggregate PRs, issues, feedback, errors, and delivery work still waiting for human judgment. |
 | `/factory-review-prs`| Review a filtered queue of PRs; apply separate reply, approval, and merge rules. |
 | `/factory-babysit-pr`| Follow one explicitly authorized PR, fix in-scope findings, and apply separate publish, reply, approval, merge, and soak rules. |
 | `/factory-ship`| Publish and complete delivery work under the project's policy. |
@@ -66,11 +73,37 @@ Every Factory skill is marked experimental in the installer and skills list.
 
 `/factory-collect` handles current items. `/factory-lookback` compares history
 to find patterns the normal item-by-item flow has missed or only fixed
-temporarily. `/factory-review-prs` is a queue sweep, while
+temporarily. `/factory-human-digest` gathers the work held for a person across
+those flows. `/factory-review-prs` is a queue sweep, while
 `/factory-babysit-pr` follows one PR. `/factory-watchdog` looks for stopped
 delivery work and `/factory-recover` handles eligible interrupted runs. Use
 `/agent-watchdog` for a general audit of another agent's session or diff; it
 does not replace these Factory workflows.
+
+## Human decision digest
+
+Run `/factory-human-digest` to see the work that did not enter an agent-handled
+path or still needs human judgment. With no narrower request, it reads all
+configured categories for the last 7 days and uses balanced detail. Narrow it
+in ordinary language, such as “PRs only, last 30 days, detailed,” “issues only,
+this month,” or “everything this week, brief.” A filter cannot expand the
+repositories, source scopes, or tools in the project config.
+
+The digest groups related feedback and errors when their evidence points to the
+same underlying UX or system problem. It keeps each source link and distinguishes
+the count of reports from the number of affected people. It includes PRs waiting
+for human review or a merge decision, issues and feedback held for clarification
+or policy, new answers that have not been re-triaged, and failed or stalled
+delivery work without a safe authorized next step. It does not take actions;
+use the owning Factory workflow when a decision leads to a reply, approval,
+merge, status change, or other write.
+
+`/factory-collect` may ask one targeted follow-up question when the configured
+reply policy allows it. Later collection runs check for answers and re-triage
+the original report with the new details under the same fix criteria.
+`/factory-lookback` also reads those follow-up threads to see whether the new
+information explains a repeated pattern or supports a systemic fix. An answer
+does not mark the report fixed or authorize a separate action.
 
 ## Configuration at a glance
 
@@ -95,6 +128,11 @@ sources:
     provider: sentry
     scope: organization/project
 
+repositories:
+  - id: app
+    provider: github
+    remote: example/project
+
 workflows:
   collect:
     enabled: true
@@ -105,7 +143,10 @@ workflows:
       allow: [verified defects in owned code]
       stop: [unclear product intent, security-sensitive changes]
     reply:
-      mode: never
+      mode: criteria
+      require: [one missing detail blocks triage or verification]
+      tone: warm and direct
+      guidance: Ask one targeted question, then re-triage when an answer arrives.
   lookback:
     enabled: true
     schedule: monthly
@@ -114,10 +155,20 @@ workflows:
     sources: [support, product-events, runtime-errors]
     implement:
       mode: manual
+  human-digest:
+    enabled: true
+    schedule: weekly
+    window: last 7 days
+    repositories: [app]
+    sources: [support, product-events, runtime-errors]
+    include: [pull-requests, issues, feedback, errors, telemetry]
+    granularity: balanced
 
 skill_prompts:
   factory-ship: |
     Keep release summaries concise and link the verified change.
+  factory-human-digest: |
+    Group repeated UX concerns while keeping every item link available.
 ```
 
 `skill_prompts` is an open map: each Factory skill reads the entry matching

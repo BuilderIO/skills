@@ -42,9 +42,17 @@ with the configured checks and a representative reproduction.
 
 | Action | Gate |
 | --- | --- |
-| Reply | Follow `workflows.collect.reply`, including configured tone and guidance. `never` means no public reply. |
+| Reply | When missing information blocks triage or verification, ask one targeted question only if `workflows.collect.reply` allows it; follow configured tone and guidance. `never` means no public reply. |
 | Close or mark fixed | Follow `workflows.collect.close` and wait for its proof point. Do not imply an unverified release. |
 | Publish, approve, merge, or deploy | Requires its own workflow authorization; collection does not grant it. |
+
+When an item needs more information, keep it unresolved and retain the source
+thread link and the exact question. If replies are disabled, include that
+question in the report for a person to send. On later collection runs, check
+whether an answer arrived. Re-triage the original report together with the
+answer, then apply the implementation and verification rules again; receiving
+an answer does not itself authorize a fix or external action. Use
+`factory-lookback` to compare these follow-ups with prior reports and fixes.
 
 ## Report
 
