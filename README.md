@@ -12,21 +12,21 @@ See the [full CLI docs below](#install).
 
 ## Skills At A Glance
 
-- [`/factory` (experimental)](skills/factory/SKILL.md) - Configure connected
+- [`/factory`](skills/factory/SKILL.md) (experimental) - Configure connected
   sources, prompts, schedules, and delivery policies.
-- [`/factory-collect` (experimental)](skills/factory-collect/SKILL.md) - Collect
+  - [`/factory-collect`](skills/factory-collect/SKILL.md) - Collect
   feedback, product telemetry, errors, and issues.
-- [`/factory-lookback` (experimental)](skills/factory-lookback/SKILL.md) - Find
+  - [`/factory-lookback`](skills/factory-lookback/SKILL.md) - Find
   recurring signals and systemic fixes across a chosen time window.
-- [`/factory-review-prs` (experimental)](skills/factory-review-prs/SKILL.md) -
+  - [`/factory-review-prs`](skills/factory-review-prs/SKILL.md) -
   Review a PR queue with separate reply, approval, and merge criteria.
-- [`/factory-babysit-pr` (experimental)](skills/factory-babysit-pr/SKILL.md) -
+  - [`/factory-babysit-pr`](skills/factory-babysit-pr/SKILL.md) -
   Follow one authorized PR through checks and review.
-- [`/factory-ship` (experimental)](skills/factory-ship/SKILL.md) - Publish
+  - [`/factory-ship`](skills/factory-ship/SKILL.md) - Publish
   delivery work under configured verification and merge policies.
-- [`/factory-watchdog` (experimental)](skills/factory-watchdog/SKILL.md) - Find
+  - [`/factory-watchdog`](skills/factory-watchdog/SKILL.md) - Find
   stalled delivery work and notify when a concrete next step is due.
-- [`/factory-recover` (experimental)](skills/factory-recover/SKILL.md) - Resume
+  - [`/factory-recover`](skills/factory-recover/SKILL.md) - Resume
   interrupted work when its authorization and worktree are still valid.
 - [`/an`](skills/an/SKILL.md) - Open and operate Agent-Native apps beside the conversation.
 - [`/webmcp`](skills/webmcp/README.md) - Open web apps in the built-in browser and use MCP tools first.
@@ -46,7 +46,7 @@ See the [full CLI docs below](#install).
 
 ## Skill Details
 
-### [`/factory` (experimental)](skills/factory/SKILL.md)
+### [`/factory`](skills/factory/SKILL.md)  (experimental)
 
 Factory is an experimental set of agent skills for turning feedback, product
 telemetry, errors, and delivery signals into policy-gated software changes.
