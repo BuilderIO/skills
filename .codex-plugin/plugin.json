@@ -1,7 +1,7 @@
 {
   "name": "builder-skills",
   "version": "0.0.0",
-  "description": "Public Builder skills for docs-first discipline, autonomous execution, cross-agent review, local-first Rewind memory, efficient agent workflows, clear status recaps, and Agent-Native workflow app packaging.",
+  "description": "Public Builder skills for docs-first discipline, autonomous execution, cross-agent review, local-first Rewind memory, efficient agent workflows, clear status recaps, Agent-Native workflow apps, and experimental configurable software factory workflows.",
   "author": {
     "name": "Builder.io",
     "url": "https://www.builder.io"
@@ -14,7 +14,7 @@
   "interface": {
     "displayName": "Builder Skills",
     "shortDescription": "Builder skills for efficient agent workflows.",
-    "longDescription": "A small public skill collection for docs-first discipline, autonomous execution, cross-agent watchdogging and plan arbitration, local-first Rewind screen memory, efficient frontier-model orchestration, clear status recaps, and Agent-Native workflow app packaging and hosting. Rewind asks permission to open the signed Clips Desktop install flow when the app is missing, then requires separate local Screen Memory MCP setup.",
+    "longDescription": "A small public skill collection for docs-first discipline, autonomous execution, cross-agent watchdogging and plan arbitration, local-first Rewind screen memory, efficient frontier-model orchestration, clear status recaps, Agent-Native workflow app packaging and hosting, and experimental configurable software factory workflows. Rewind asks permission to open the signed Clips Desktop install flow when the app is missing, then requires separate local Screen Memory MCP setup.",
     "developerName": "Builder.io",
     "category": "Productivity",
     "capabilities": ["Read", "Write"],
