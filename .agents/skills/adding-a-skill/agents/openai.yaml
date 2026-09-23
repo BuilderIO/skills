@@ -1,4 +1,0 @@
-interface:
-  display_name: "Adding A Skill"
-  short_description: "Repo-specific skill release checklist."
-  default_prompt: "Use $adding-a-skill before adding or updating a public BuilderIO skill."
