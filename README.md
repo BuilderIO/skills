@@ -12,24 +12,24 @@ See the [full CLI docs below](#install).
 
 ## Skills At A Glance
 
-- [`/factory`](skills/factory/SKILL.md) (experimental) - Configure connected
+- [`/factory`](#factory) (experimental) - Configure connected
   sources, prompts, schedules, and delivery policies.
-  - [`/factory-collect`](skills/factory-collect/SKILL.md) - Collect
+  - [`/factory-collect`](#factory-collect) - Collect
   feedback, product telemetry, errors, and issues.
-  - [`/factory-lookback`](skills/factory-lookback/SKILL.md) - Find
+  - [`/factory-lookback`](#factory-lookback) - Find
   recurring signals and systemic fixes across a chosen time window.
-  - [`/factory-review-prs`](skills/factory-review-prs/SKILL.md) -
+  - [`/factory-review-prs`](#factory-review-prs) -
   Review a PR queue with separate reply, approval, and merge criteria.
-  - [`/factory-babysit-pr`](skills/factory-babysit-pr/SKILL.md) -
+  - [`/factory-babysit-pr`](#factory-babysit-pr) -
   Follow one authorized PR through checks and review.
-  - [`/factory-ship`](skills/factory-ship/SKILL.md) - Publish
+  - [`/factory-ship`](#factory-ship) - Publish
   delivery work under configured verification and merge policies.
-  - [`/factory-watchdog`](skills/factory-watchdog/SKILL.md) - Find
+  - [`/factory-watchdog`](#factory-watchdog) - Find
   stalled delivery work and notify when a concrete next step is due.
-  - [`/factory-recover`](skills/factory-recover/SKILL.md) - Resume
+  - [`/factory-recover`](#factory-recover) - Resume
   interrupted work when its authorization and worktree are still valid.
-- [`/an`](skills/an/SKILL.md) - Open and operate Agent-Native apps beside the conversation.
-- [`/webmcp`](skills/webmcp/README.md) - Open web apps in the built-in browser and use MCP tools first.
+- [`/an`](#an) - Open and operate Agent-Native apps beside the conversation.
+- [`/webmcp`](#webmcp) - Open web apps in the built-in browser and use MCP tools first.
 - [`/visual-plan`](#visual-plan) - Turn text plans into rich visual plans.
 - [`/visual-recap`](#visual-recap) - Turn diffs into interactive visual recaps.
 - [`/visual-edit`](#visual-edit) - Open a running local app for visual editing.
@@ -46,7 +46,10 @@ See the [full CLI docs below](#install).
 
 ## Skill Details
 
-### [`/factory`](skills/factory/SKILL.md)  (experimental)
+### /factory
+
+**Experimental.** Start with the [Factory guide](docs/factory/README.md), then
+open the [full Factory skill](skills/factory/SKILL.md) for agent instructions.
 
 Factory is an experimental set of agent skills for turning feedback, product
 telemetry, errors, and delivery signals into policy-gated software changes.
@@ -108,9 +111,43 @@ Each Factory skill reads its own optional prompt entry as additional project
 guidance. Prompt text cannot authorize an action that its separate policy
 blocks.
 
-See the [Factory guide](docs/factory/README.md) for the workflow and setup.
 The [configuration reference](docs/factory/configuration.md) explains the
 available YAML fields, source patterns, policies, and host limitations.
+
+### /factory-collect
+
+Start with the [Factory guide](docs/factory/README.md), then read the
+[full collect skill](skills/factory-collect/SKILL.md).
+
+### /factory-lookback
+
+Start with the [Factory guide](docs/factory/README.md), then read the
+[full lookback skill](skills/factory-lookback/SKILL.md).
+
+### /factory-review-prs
+
+Start with the [Factory guide](docs/factory/README.md), then read the
+[full PR review skill](skills/factory-review-prs/SKILL.md).
+
+### /factory-babysit-pr
+
+Start with the [Factory guide](docs/factory/README.md), then read the
+[full PR babysitting skill](skills/factory-babysit-pr/SKILL.md).
+
+### /factory-ship
+
+Start with the [Factory guide](docs/factory/README.md), then read the
+[full shipping skill](skills/factory-ship/SKILL.md).
+
+### /factory-watchdog
+
+Start with the [Factory guide](docs/factory/README.md), then read the
+[full watchdog skill](skills/factory-watchdog/SKILL.md).
+
+### /factory-recover
+
+Start with the [Factory guide](docs/factory/README.md), then read the
+[full recovery skill](skills/factory-recover/SKILL.md).
 
 ### [`/an`](skills/an/SKILL.md)
 

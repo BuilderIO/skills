@@ -9,6 +9,9 @@ description: >-
 
 # Factory Lookback
 
+> Start with the [Factory guide](../../docs/factory/README.md) for workflow
+> setup and configuration.
+
 Read `.agent-factory/config.yaml` and apply the optional
 `skill_prompts.factory-lookback` entry as additional project guidance. Use this
 workflow when asked to look back across a bounded period or when an enabled

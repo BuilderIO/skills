@@ -9,6 +9,9 @@ description: >-
 
 # Factory Collect
 
+> Start with the [Factory guide](../../docs/factory/README.md) for workflow
+> setup and configuration.
+
 Read `.agent-factory/config.yaml` and apply the optional
 `skill_prompts.factory-collect` entry as additional project guidance. Collect
 only the sources named by `workflows.collect.sources`. For repeated patterns

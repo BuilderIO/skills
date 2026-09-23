@@ -9,6 +9,9 @@ description: >-
 
 # Factory
 
+> Start with the [Factory guide](../../docs/factory/README.md) for workflow
+> setup and configuration.
+
 Read `.agent-factory/config.yaml` and apply the optional
 `skill_prompts.factory` entry as additional project guidance. Configure the
 current project to turn selected product or maintenance signals

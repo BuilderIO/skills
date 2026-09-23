@@ -9,6 +9,9 @@ description: >-
 
 # Factory Babysit PR
 
+> Start with the [Factory guide](../../docs/factory/README.md) for workflow
+> setup and configuration.
+
 Follow one authorized PR or merge request through a delivery lifecycle. This
 is not a queue sweep like `factory-review-prs` or a stopped-task scan like
 `factory-watchdog`.

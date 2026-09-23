@@ -8,6 +8,9 @@ description: >-
 
 # Factory Review PRs
 
+> Start with the [Factory guide](../../docs/factory/README.md) for workflow
+> setup and configuration.
+
 This skill reviews a filtered queue. For one long-lived, explicitly authorized
 PR, use `factory-babysit-pr`. Read the filters and independent action policies
 from `.agent-factory/config.yaml`; see the [configuration reference](https://github.com/BuilderIO/skills/blob/main/docs/factory/configuration.md).
