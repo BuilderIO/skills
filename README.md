@@ -10,8 +10,43 @@ npx @agent-native/skills@latest add
 
 See the [full CLI docs below](#install).
 
+## Experimental Factory Skills
+
+Build configurable feedback-to-delivery workflows from connected sources such
+as chat, issue trackers, and error monitors. The experimental modules cover
+feedback intake, PR review, shipping, ship watchdogs, and recovery of
+interrupted runs. Configure each action independently, including when to fix,
+reply, approve, merge, close, deploy, resume, or notify.
+
+Install the complete group in one command:
+
+~~~sh
+npx @agent-native/skills@latest add \
+  --skill factory \
+  --skill factory-feedback \
+  --skill factory-review-prs \
+  --skill factory-ship \
+  --skill factory-watchdog \
+  --skill factory-recover \
+  --client codex,claude-code \
+  --scope project \
+  --yes
+~~~
+
+Use /factory to write .agent-factory/config.yaml and configure connected
+sources, per-action autonomy, schedules, and host automations. The [Factory
+guide](docs/factory/README.md) explains configuration, privacy, and the
+scheduler/worktree requirements.
+
 ## Skills At A Glance
 
+- **Experimental Factory**: [guide](docs/factory/README.md)
+  - [/factory](skills/factory/SKILL.md) setup
+  - [/factory-feedback](skills/factory-feedback/SKILL.md)
+  - [/factory-review-prs](skills/factory-review-prs/SKILL.md)
+  - [/factory-ship](skills/factory-ship/SKILL.md)
+  - [/factory-watchdog](skills/factory-watchdog/SKILL.md)
+  - [/factory-recover](skills/factory-recover/SKILL.md)
 - [`/an`](skills/an/SKILL.md) - Open and operate Agent-Native apps beside the conversation.
 - [`/webmcp`](skills/webmcp/README.md) - Open web apps in the built-in browser and use MCP tools first.
 - [`/visual-plan`](#visual-plan) - Turn text plans into rich visual plans.
