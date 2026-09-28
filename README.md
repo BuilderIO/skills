@@ -212,6 +212,22 @@ Unlike a static mockup, the canvas stays connected to the app's real routes and
 the local bridge. Use `/visual-edit` when a UI needs to be reviewed or changed
 in context, including responsive states and multi-screen flows.
 
+Install the skill and Design connector from your app repository:
+
+```sh
+npx @agent-native/core@latest skills add visual-edit
+```
+
+Try it on one screen, several routes, a complete flow, or responsive sizes:
+
+- `/visual-edit the dashboard at desktop size`
+- `/visual-edit compare the dashboard, settings, and reports pages side by side`
+- `/visual-edit the onboarding flow from welcome through account created`
+- `/visual-edit show the dashboard at desktop, tablet, and mobile widths`
+
+For a hands-on onboarding example and the full workflow, see the [Visual Edit
+guide in Agent-Native](https://github.com/BuilderIO/agent-native/blob/main/skills/visual-edit/README.md).
+
 ### [`/rewind`](skills/rewind/README.md)
 
 Use local Clips Rewind screen memory to recover a recent moment: what was said,

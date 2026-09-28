@@ -9,6 +9,39 @@ screen for a new URL state, or apply visual changes back through the coding
 agent. The canvas uses the app's live routes and local bridge rather than a
 copied static HTML snapshot.
 
+## Install
+
+Run this from your app repository to install the skill and hosted Design
+connector:
+
+```sh
+npx @agent-native/core@latest skills add visual-edit
+```
+
+## Examples to try
+
+- **One screen:** `/visual-edit the dashboard at desktop size`
+- **Several screens:** `/visual-edit compare the dashboard, settings, and reports pages side by side`
+- **A full flow:** `/visual-edit the onboarding flow from welcome through account created`
+- **Responsive sizes:** `/visual-edit show the dashboard at desktop, tablet, and mobile widths`
+
+## Example: refine an onboarding flow
+
+Start your app locally, then ask your coding agent:
+
+```text
+/visual-edit the onboarding flow, plus home at every breakpoint
+```
+
+Design can place the four onboarding screens and Home at desktop, tablet, and
+mobile sizes together on one canvas. Select the **Get started** button, change
+its fill with the color picker, and drag its padding on the canvas to see the
+layout respond.
+
+When the result looks right, ask your coding agent to **Pull in my visual
+edits**. The agent retrieves the pending batch and updates the app's source for
+you to review. Design does not write those changes to your code automatically.
+
 ## Choose the screens deliberately
 
 - **Multiple pages:** pass `paths` such as `["/", "/pricing", "/settings"]`.
@@ -54,13 +87,10 @@ Inside Design, choose **Show/Hide UI** from the `Cmd+K` menu or press Figma's
 `Shift+\` shortcut. The same action is available from Design's empty-canvas
 context menu.
 
-For the full workflow, install the skill with the Agent-Native CLI:
-
-```sh
-npx @agent-native/core@latest skills add visual-edit
-```
-
 The hosted Design MCP connector handles the account-backed open, screen
 placement, and source-edit workflow. Public/read-only designs may be viewed
 without signing in; creating, saving, or sharing a design still requires an
 authenticated account.
+
+For the complete walkthrough and sharing details, see the [Visual Edit guide
+in Agent-Native](https://github.com/BuilderIO/agent-native/blob/main/skills/visual-edit/README.md).
