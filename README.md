@@ -225,8 +225,9 @@ Try it on one screen, several routes, a complete flow, or responsive sizes:
 - `/visual-edit the onboarding flow from welcome through account created`
 - `/visual-edit show the dashboard at desktop, tablet, and mobile widths`
 
-For a hands-on onboarding example and the full workflow, see the [Visual Edit
-guide in Agent-Native](https://github.com/BuilderIO/agent-native/blob/main/skills/visual-edit/README.md).
+Read the [public Visual Edit README](./skills/visual-edit/README.md) for a
+hands-on example, and the [Agent-Native guide](https://github.com/BuilderIO/agent-native/blob/main/skills/visual-edit/README.md)
+for the full workflow.
 
 ### [`/rewind`](skills/rewind/README.md)
 
