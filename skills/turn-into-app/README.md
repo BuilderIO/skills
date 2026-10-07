@@ -9,6 +9,21 @@ triage queue) with the agent working behind buttons on the objects it acts on.
 A form under a step bar is the failure it is built to avoid. The app opens on
 your world, already populated, not on step one of your procedure.
 
+## Install
+
+```sh
+npx @agent-native/skills@latest add --skill turn-into-app
+```
+
+## Try it
+
+- `/turn-into-app` at the end of a thread that proved a repeatable job.
+- `/turn-into-app /some-skill` to package a skill, even at the start of a thread.
+- `/turn-into-app ./forecast.xlsx` to turn a spreadsheet into a workbench with a
+  sheet-versus-app before and after.
+- `/turn-into-app ./project-export/` to turn a Claude or ChatGPT project's
+  instructions, knowledge files, and past runs into an app.
+
 ![Before and after: a form and a plain table become a findings workbench, a spreadsheet workbench with sliders and a chart, and a call-prep queue](../../media/turn-into-app-before-after.png)
 
 ## What you get
@@ -31,21 +46,6 @@ your world, already populated, not on step one of your procedure.
 - **A real Agent-Native app.** Shared actions the UI and the agent both call,
   the normal Use Builder.io / add your own keys setup, `pnpm dev` locally, and a
   build and deploy path.
-
-## Install
-
-```sh
-npx @agent-native/skills@latest add --skill turn-into-app
-```
-
-## Try it
-
-- `/turn-into-app` at the end of a thread that proved a repeatable job.
-- `/turn-into-app /some-skill` to package a skill, even at the start of a thread.
-- `/turn-into-app ./forecast.xlsx` to turn a spreadsheet into a workbench with a
-  sheet-versus-app before and after.
-- `/turn-into-app ./project-export/` to turn a Claude or ChatGPT project's
-  instructions, knowledge files, and past runs into an app.
 
 ## How it works
 
