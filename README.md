@@ -44,7 +44,7 @@ See the [full CLI docs below](#install).
 - [`/stay-within-limits`](#stay-within-limits) - Track usage limits before long-running work.
 - [`/quick-recap`](#quick-recap) - End work with a clear status signal.
 - [`/read-the-damn-docs`](#read-the-damn-docs) - Check authoritative docs before guessing.
-- [`/turn-into-app`](#turn-into-app) - Turn the current thread or a skill into a runnable Agent-Native app.
+- [`/turn-into-app`](#turn-into-app) - Turn a thread, skill, spreadsheet, or Claude/ChatGPT project into a visual Agent-Native app.
 
 ## Skill Details
 
@@ -376,14 +376,37 @@ usually the first move.
 
 ### [`/turn-into-app`](skills/turn-into-app/README.md)
 
-At the end of a thread, turn the current workflow into a fresh Agent-Native app
-with clear buttons, visible agent steps, a running local preview, and a concise
-deployment handoff. At the beginning of a thread, pass a skill name or workflow
-path, such as `/turn-into-app /some-skill`, to use that source immediately.
-Codex threads and local transcript exports work today; ChatGPT shared links and
-Claude web/project imports are marked coming soon. The result should be the
-concrete workflow app, not a generic app-builder intake form. Local previews can
-use ignored `.env` setting `AUTH_DISABLED=1` so they open without an account.
+Give a workflow you have already proven the face of an app and the brain of an
+agent. Turn a thread, a skill, a spreadsheet, or a Claude or ChatGPT project
+into a visual Agent-Native app that opens on your world, populated: a week grid
+for scheduling work, a board for stages, a live workbench for a spreadsheet
+model, a triage queue with a drafted reply. Buttons sit on the objects they act
+on, so you click, watch the agent work, and see the result land back in the app.
+
+A form under a step bar is the failure it is built to avoid. The skill picks the
+app's shape from the source, commits to a visual direction with real light and
+dark tokens, seeds realistic sample data, builds the agent moments into the
+objects, and reviews its own screenshots at desktop and phone sizes before it
+hands the app back.
+
+<picture>
+  <img alt="Before and after: a form and a plain table become a findings workbench, a spreadsheet workbench with sliders and a chart, and a call-prep queue" src="media/turn-into-app-before-after.png">
+</picture>
+
+Install it, then try one of these:
+
+```sh
+npx @agent-native/skills@latest add --skill turn-into-app
+```
+
+- `/turn-into-app` at the end of a thread
+- `/turn-into-app /some-skill` to package a skill
+- `/turn-into-app ./forecast.xlsx` to turn a spreadsheet into a workbench
+- `/turn-into-app ./project-export/` to turn a Claude or ChatGPT project into an app
+
+It builds and verifies locally in Claude Code, Codex, Cursor, and other coding
+agents; Claude and ChatGPT on the web hand a bounded brief to Builder through
+Dispatch. Read the [full guide](skills/turn-into-app/README.md).
 
 ## Install
 
