@@ -17,7 +17,7 @@ subagents: Haiku or Sonnet under Claude, Terra or Luna under OpenAI.
 
 Only when you invoke it by name. It never activates on its own, because
 smarter models already reach for subagents readily, and unrequested fan-out
-gets expensive fast. `/efficient-frontier` and `/efficient-fable` are aliases.
+gets expensive fast. `/efficient-fable` is an alias.
 
 ## What it does
 

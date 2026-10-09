@@ -39,7 +39,7 @@ See the [full CLI docs below](#install).
 - [`/agent-watchdog`](#agent-watchdog) - Audit another agent's work.
 - [`/plan-arbiter`](#plan-arbiter) - Compare competing plans and choose a direction.
 - [`/plow-ahead`](#plow-ahead) - Keep working through ordinary ambiguity.
-- [`/efficient-orchestrator`](#efficient-orchestrator) - Keep an expensive model on judgment while cheap agents do the heavy lifting (aliases: `/efficient-frontier`, `/efficient-fable`).
+- [`/efficient-orchestrator`](#efficient-orchestrator) - Keep an expensive model on judgment while cheap agents do the heavy lifting (alias: `/efficient-fable`).
 - [`/stay-within-limits`](#stay-within-limits) - Track usage limits before long-running work.
 - [`/quick-recap`](#quick-recap) - End work with a clear status signal.
 - [`/read-the-damn-docs`](#read-the-damn-docs) - Check authoritative docs before guessing.
@@ -312,8 +312,7 @@ the decisions it made without stopping.
 Run an expensive model (Claude Fable or Opus, OpenAI Astra or Sol) as the
 orchestrator, architect and final judge while cheaper agents (Haiku or Sonnet,
 Terra or Luna) handle token-heavy research, coding, QA and log reduction. It runs
-only when invoked by name; `/efficient-frontier` and `/efficient-fable` are
-aliases.
+only when invoked by name; `/efficient-fable` is an alias.
 
 Solves for expensive-model waste without unrequested fan-out: the premium model
 spends tokens on judgment, and helpers stay capped and short-lived.

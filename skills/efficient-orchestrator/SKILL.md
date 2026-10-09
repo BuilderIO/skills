@@ -1,6 +1,6 @@
 ---
 name: efficient-orchestrator
-description: Run only when the user explicitly invokes /efficient-orchestrator (or the /efficient-frontier and /efficient-fable aliases). Keeps an expensive model (Fable, Opus, Astra, Sol) on planning, judgment and review while cheaper subagents do bounded research, coding, QA and log work. Never self-activate.
+description: Run only when the user explicitly invokes /efficient-orchestrator (or the /efficient-fable alias). Keeps an expensive model (Fable, Opus, Astra, Sol) on planning, judgment and review while cheaper subagents do bounded research, coding, QA and log work. Never self-activate.
 disable-model-invocation: true
 ---
 
