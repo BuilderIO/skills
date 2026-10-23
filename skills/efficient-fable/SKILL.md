@@ -1,6 +1,6 @@
 ---
-name: efficient-fable
-description: Use when running Claude Fable on codebase-heavy or token-heavy work and the user wants Fable to orchestrate research, coding, and testing while cheaper subagents do bounded heavy lifting.
+name: efficient-orchestrator
+description: Use when running a high-cost frontier model as an orchestrator on codebase-heavy or token-heavy work while cheaper subagents do bounded heavy lifting.
 ---
 
 # Efficient Fable

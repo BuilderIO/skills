@@ -1,6 +1,6 @@
 # /efficient-frontier
 
-Apply the same orchestration as `/efficient-fable` to any high-cost frontier
+Apply the same orchestration as `/efficient-orchestrator` to any high-cost frontier
 model.
 
 `/efficient-frontier` is the model-agnostic version of `/efficient-fable`. It
