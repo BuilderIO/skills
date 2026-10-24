@@ -13,6 +13,7 @@
     "sync:agent-native-skills": "node scripts/sync-agent-native-skills.mjs",
     "sync:agent-native-visual-skills": "npm run sync:agent-native-skills",
     "sync:agent-native-plan-skills": "npm run sync:agent-native-skills",
-    "check": "npm run check:skills && npm run check:agent-native-skills"
+    "check": "npm run check:skills && npm run check:agent-native-skills",
+    "test": "node --test scripts/check-skill-frontmatter.test.mjs"
   }
 }
