@@ -94,7 +94,7 @@ If the skill should affect `AGENTS.md` / `CLAUDE.md` through
   pnpm --filter @agent-native/skills test -- src/index.spec.ts --runInBand
   ```
 
-Use this for durable behavior rules like `quick-recap`, `efficient-fable`,
+Use this for durable behavior rules like `quick-recap`, `efficient-orchestrator`,
 `stay-within-limits`, and likely docs-first behavior such as
 `read-the-damn-docs`.
 

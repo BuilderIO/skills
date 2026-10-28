@@ -39,8 +39,7 @@ See the [full CLI docs below](#install).
 - [`/agent-watchdog`](#agent-watchdog) - Audit another agent's work.
 - [`/plan-arbiter`](#plan-arbiter) - Compare competing plans and choose a direction.
 - [`/plow-ahead`](#plow-ahead) - Keep working through ordinary ambiguity.
-- [`/efficient-fable`](#efficient-fable) - Orchestrate Fable with cheaper helper agents.
-- [`/efficient-frontier`](#efficient-frontier) - Preserve high-cost models for judgment.
+- [`/efficient-orchestrator`](#efficient-orchestrator) - Keep an expensive model on judgment while cheap agents do the heavy lifting (aliases: `/efficient-frontier`, `/efficient-fable`).
 - [`/stay-within-limits`](#stay-within-limits) - Track usage limits before long-running work.
 - [`/quick-recap`](#quick-recap) - End work with a clear status signal.
 - [`/read-the-damn-docs`](#read-the-damn-docs) - Check authoritative docs before guessing.
@@ -308,30 +307,22 @@ Solves for explicit autonomy requests: the agent converts routine questions into
 assumptions, proceeds with conservative choices, validates the work, and recaps
 the decisions it made without stopping.
 
-### [`/efficient-fable`](skills/efficient-fable/README.md)
+### [`/efficient-orchestrator`](skills/efficient-orchestrator/README.md)
 
-Use Claude Fable as the orchestrator, architect, synthesizer, and final judge
-while lighter agents handle token-heavy research, coding, testing, and log
-reduction.
+Run an expensive model (Claude Fable or Opus, OpenAI Astra or Sol) as the
+orchestrator, architect and final judge while cheaper agents (Haiku or Sonnet,
+Terra or Luna) handle token-heavy research, coding, QA and log reduction. It runs
+only when invoked by name; `/efficient-frontier` and `/efficient-fable` are
+aliases.
 
-Solves for expensive-model waste: Fable should spend tokens on judgment, not on
-reading every file, reducing every log, or manually running every browser check.
+Solves for expensive-model waste without unrequested fan-out: the premium model
+spends tokens on judgment, and helpers stay capped and short-lived.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="skills/efficient-fable/assets/fable-orchestrator-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="skills/efficient-fable/assets/fable-orchestrator.png">
-  <img alt="Fable orchestrator diagram" src="skills/efficient-fable/assets/fable-orchestrator.png">
+  <source media="(prefers-color-scheme: dark)" srcset="skills/efficient-orchestrator/assets/fable-orchestrator-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="skills/efficient-orchestrator/assets/fable-orchestrator.png">
+  <img alt="Orchestrator diagram" src="skills/efficient-orchestrator/assets/fable-orchestrator.png">
 </picture>
-
-### [`/efficient-frontier`](skills/efficient-frontier/README.md)
-
-Apply the same orchestration as `/efficient-fable` to any high-cost frontier
-model: preserve the expensive model for planning, tradeoffs, integration,
-validation strategy, and final review; use cheaper agents for bounded heavy
-lifting.
-
-Solves for broad work that can be parallelized without asking the most expensive
-model to do every scan and every edit itself.
 
 ### [`/stay-within-limits`](skills/stay-within-limits/README.md)
 
