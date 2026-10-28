@@ -10,6 +10,7 @@ const skillsRoot = path.join(repoRoot, "skills");
 const allowedProperties = new Set([
   "allowed-tools",
   "description",
+  "disable-model-invocation",
   "installer-group",
   "license",
   "metadata",
