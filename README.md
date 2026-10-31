@@ -36,6 +36,7 @@ See the [full CLI docs below](#install).
 - [`/visual-recap`](#visual-recap) - Turn diffs into interactive visual recaps.
 - [`/visual-edit`](#visual-edit) - Open a running local app for visual editing.
 - [`/rewind`](#rewind) - Recover recent local screen context through Clips Desktop.
+- [`/agent-qa`](#agent-qa) - Verify app journeys and review run evidence with memidex memory.
 - [`/agent-watchdog`](#agent-watchdog) - Audit another agent's work.
 - [`/plan-arbiter`](#plan-arbiter) - Compare competing plans and choose a direction.
 - [`/plow-ahead`](#plow-ahead) - Keep working through ordinary ambiguity.
@@ -280,6 +281,17 @@ npx @agent-native/skills@latest add
 ```
 
 ![Example of a visual plan posted to a PR](https://cdn.builder.io/api/v1/image/assets%2FYJIGb4i01jvw0SRdL5Bt%2Fcf9bac396cf24a4ba976fc331af6fc5d)
+
+### /agent-qa
+
+Run selected web, Android or iOS regressions in an existing agent-qa project,
+or review saved failures and memidex provenance without rerunning tests.
+[agent-qa](https://github.com/vostride/agent-qa) from vostride combines
+natural-language tests with advanced memory and self-improvement.
+
+Read the [agent-qa skill](skills/agent-qa/SKILL.md) for execution boundaries,
+evidence review and reporting. Requires the project's installed CLI and
+configuration; live tests also need the target application and providers.
 
 ### [`/agent-watchdog`](skills/agent-watchdog/README.md)
 
