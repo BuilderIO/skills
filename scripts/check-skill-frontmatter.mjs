@@ -36,6 +36,11 @@ function parseQuoted(value, quote) {
 }
 
 function parsePlainScalar(value) {
+  if (/^[[\]{},#&*!|>'"%@`]/.test(value) || /^[-?:](\s|$)/.test(value)) {
+    throw new Error(
+      `plain scalars cannot start with '${value[0]}'; quote the value or use a folded block scalar`,
+    );
+  }
   if (/:($|\s)/.test(value)) {
     throw new Error(
       "plain scalars cannot contain ': '; quote the value or use a folded block scalar",
@@ -61,7 +66,7 @@ function collectIndentedBlock(lines, start) {
   return { value: blockLines.join("\n").trim(), nextIndex: index };
 }
 
-function parseFrontmatter(frontmatter) {
+export function parseFrontmatter(frontmatter) {
   const lines = frontmatter.split("\n");
   const parsed = new Map();
 
@@ -210,4 +215,6 @@ async function main() {
   }
 }
 
-await main();
+if (process.argv[1] && path.resolve(process.argv[1]) === scriptPath) {
+  await main();
+}
