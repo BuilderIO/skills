@@ -231,19 +231,17 @@ for the full workflow.
 
 ### [`/remix`](skills/remix/README.md)
 
-Take a section, effect, or interaction from one website and rebuild it in your
-own site. Design puts the source and your site side by side; select what to take
-and where it goes (both at once is fine), and the agent reads the source's
-shipped code, rebuilds it with your colors, fonts, and components, and keeps
-images, video, and 3D models swappable.
+Rebuild a website effect directly in your repo, or ask for Design to pick the
+source and destination visually on a canvas. Design is optional. The agent
+studies the page and shipped code, writes a behavior spec outside the repo,
+and implements original code with exact behavior and swappable assets.
 
-Every shader, WebGL, 3D, or animation effect gets knobs in the Design
-inspector's Tweaks section, shown whenever the effect or anything around it is
-selected. Your agent can read and set the same values over MCP.
-`/remix explain` lays out a small explainer beside the source instead: one live,
-tweakable demo per idea.
+Repo mode exposes typed props or CSS custom properties with defaults. Design
+mode also registers inspector Tweaks and supports explainer frames. Both modes
+verify matched source/result screenshots and motion clips, then show before/after
+images. Proprietary assets get procedural or openly licensed stand-ins.
 
-Install the skill and Design connector from your app repository:
+Install from your app repository (the Design connector is optional to use):
 
 ```sh
 npx @agent-native/core@latest skills add remix
@@ -251,6 +249,8 @@ npx @agent-native/core@latest skills add remix
 
 Try:
 
+- `/remix add the stripe hero animation to ours but make it blue`
+- `/remix in Design, the stripe hero into my homepage`
 - `/remix the hero background from stripe.com into my homepage`
 - `/remix the pricing table from linear.app into /pricing`
 - `/remix explain the scroll animation on this page`
