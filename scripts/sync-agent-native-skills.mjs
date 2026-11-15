@@ -37,6 +37,7 @@ function resolveSources(sourcePath) {
       visualPlan: path.join(source, "visual-plan"),
       visualRecap: path.join(source, "visual-recap"),
       visualEdit: path.join(source, "visual-edit"),
+      remix: path.join(source, "remix"),
       an: path.join(source, "an"),
       turnIntoApp: path.join(source, "turn-into-app"),
     },
@@ -45,6 +46,7 @@ function resolveSources(sourcePath) {
       visualPlan: path.join(source, "skills", "visual-plan"),
       visualRecap: path.join(source, "skills", "visual-recap"),
       visualEdit: path.join(source, "skills", "visual-edit"),
+      remix: path.join(source, "skills", "remix"),
       an: path.join(source, "skills", "an"),
       turnIntoApp: path.join(source, "skills", "turn-into-app"),
     },
@@ -62,6 +64,10 @@ function resolveSources(sourcePath) {
         source,
         ".agents/plugins/agent-native-design/skills/visual-edit",
       ),
+      remix: path.join(
+        source,
+        ".agents/plugins/agent-native-design/skills/remix",
+      ),
       an: path.join(source, ".agents/plugins/agent-native/skills/an"),
       turnIntoApp: path.join(
         source,
@@ -73,6 +79,7 @@ function resolveSources(sourcePath) {
       visualPlan: path.join(source, "skills", "visual-plans"),
       visualRecap: path.join(source, "skills", "visual-recap"),
       visualEdit: path.join(source, "skills", "visual-edit"),
+      remix: path.join(source, "skills", "remix"),
       an: path.join(source, "skills", "an"),
       turnIntoApp: path.join(source, "skills", "turn-into-app"),
     },
@@ -84,6 +91,7 @@ function resolveSources(sourcePath) {
       hasSkill(candidate.visualPlan) &&
       hasSkill(candidate.visualRecap) &&
       hasSkill(candidate.visualEdit) &&
+      hasSkill(candidate.remix) &&
       hasSkill(candidate.turnIntoApp),
   );
 
@@ -91,12 +99,12 @@ function resolveSources(sourcePath) {
     const checked = candidates
       .map(
         (candidate) =>
-          `- ${candidate.label}: ${candidate.an}, ${candidate.visualPlan}, ${candidate.visualRecap}, ${candidate.visualEdit}, and ${candidate.turnIntoApp}`,
+          `- ${candidate.label}: ${candidate.an}, ${candidate.visualPlan}, ${candidate.visualRecap}, ${candidate.visualEdit}, ${candidate.remix}, and ${candidate.turnIntoApp}`,
       )
       .join("\n");
 
     throw new Error(
-      `Could not find an, visual-plan, visual-recap, visual-edit, and turn-into-app skills from ${source}.\nChecked:\n${checked}`,
+      `Could not find an, visual-plan, visual-recap, visual-edit, remix, and turn-into-app skills from ${source}.\nChecked:\n${checked}`,
     );
   }
 
@@ -247,6 +255,7 @@ try {
     await assertSkillCurrent("visual-plan", sources.visualPlan);
     await assertSkillCurrent("visual-recap", sources.visualRecap);
     await assertSkillCurrent("visual-edit", sources.visualEdit);
+    await assertSkillCurrent("remix", sources.remix);
     await assertSkillCurrent("turn-into-app", sources.turnIntoApp);
     await assertGeneratedSkillCurrent("rewind", rewind);
   } else {
@@ -254,6 +263,7 @@ try {
     await copySkill("visual-plan", sources.visualPlan);
     await copySkill("visual-recap", sources.visualRecap);
     await copySkill("visual-edit", sources.visualEdit);
+    await copySkill("remix", sources.remix);
     await copySkill("turn-into-app", sources.turnIntoApp);
     await copyGeneratedSkill("rewind", rewind);
   }

@@ -35,6 +35,7 @@ See the [full CLI docs below](#install).
 - [`/visual-plan`](#visual-plan) - Turn text plans into rich visual plans.
 - [`/visual-recap`](#visual-recap) - Turn diffs into interactive visual recaps.
 - [`/visual-edit`](#visual-edit) - Open a running local app for visual editing.
+- [`/remix`](#remix) - Rebuild part of another website in yours, with live knobs.
 - [`/rewind`](#rewind) - Recover recent local screen context through Clips Desktop.
 - [`/agent-watchdog`](#agent-watchdog) - Audit another agent's work.
 - [`/plan-arbiter`](#plan-arbiter) - Compare competing plans and choose a direction.
@@ -227,6 +228,34 @@ Try it on one screen, several routes, a complete flow, or responsive sizes:
 Read the [public Visual Edit README](./skills/visual-edit/README.md) for a
 hands-on example, and the [Agent-Native guide](https://github.com/BuilderIO/agent-native/blob/main/skills/visual-edit/README.md)
 for the full workflow.
+
+### [`/remix`](skills/remix/README.md)
+
+Take a section, effect, or interaction from one website and rebuild it in your
+own site. Design puts the source and your site side by side; select what to take
+and where it goes (both at once is fine), and the agent reads the source's
+shipped code, rebuilds it with your colors, fonts, and components, and keeps
+images, video, and 3D models swappable.
+
+Every shader, WebGL, 3D, or animation effect gets knobs in the Design
+inspector's Tweaks section, shown whenever the effect or anything around it is
+selected. Your agent can read and set the same values over MCP.
+`/remix explain` lays out a small explainer beside the source instead: one live,
+tweakable demo per idea.
+
+Install the skill and Design connector from your app repository:
+
+```sh
+npx @agent-native/core@latest skills add remix
+```
+
+Try:
+
+- `/remix the hero background from stripe.com into my homepage`
+- `/remix the pricing table from linear.app into /pricing`
+- `/remix explain the scroll animation on this page`
+
+Read the [public Remix README](./skills/remix/README.md) for a worked example.
 
 ### [`/rewind`](skills/rewind/README.md)
 
