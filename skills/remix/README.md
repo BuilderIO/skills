@@ -42,6 +42,12 @@ your agent can read and set the same values, then write the final ones into your
 source as the defaults. Images, videos, and 3D models are each one prop, so you
 can swap in your own.
 
+When it's done, Design shows a board: the original on the left, your remix on
+the right, and a row of small "How it works" frames beneath, one per stage of
+the technique. Their knobs are the remix's own knobs, so turning one in an
+explainer changes your page too. Say "just the code" to skip Design and get
+before/after images instead.
+
 ## Remix explain
 
 `/remix explain` lays out a small explainer next to the source instead of
@@ -52,6 +58,8 @@ three.js examples.
 ## What you get
 
 - The remixed part rebuilt in your own code, matched to your design system.
+- A Design board with the original, the remix, and live explainers that share
+  its knobs.
 - Knobs for every shader, WebGL, 3D, or animation effect, readable over MCP.
 - Swappable assets with placeholders you own; no copied code, logos, fonts, or
   media from the source.
