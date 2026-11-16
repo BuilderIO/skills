@@ -16,6 +16,12 @@ to pick visually. Both modes finish on a **remix board** in Design (below)
 unless the user says no Design, headless, or just the code, or Design is
 unavailable; then use the image finish in **Finish Without Design**.
 
+Design is unavailable only when no Design MCP connector is connected and no
+browser that runs page JavaScript can load `https://design.agent-native.com`.
+A missing connector is not enough: open Design in the host's inline browser
+(Claude Code's side-panel browser, Codex's in-app browser), else the user's
+browser, and use the page's WebMCP tools as `/visual-edit` describes.
+
 ## Repo Mode: Run End To End
 
 For `/remix add the stripe hero animation to ours but make it blue`, locate
@@ -253,12 +259,19 @@ Lab) can edit GSAP-style tracks and keyframes. It is optional; knobs come first.
 ## Finish On A Remix Board
 
 Open Design as `/visual-edit` does (same launch targets and links) and lay out
-one board, left to right, at the same viewport size:
+one board, left to right, at the same viewport size.
+
+A board writes files to a Design project, so it needs the authenticated
+connector or a signed-in Design tab. A signed-out tab lists only the
+visual-edit tools (`open-visual-edit` and a few others); then ask the user to
+sign in to Design in that tab, wait, and check the tools again before falling
+back to **Finish Without Design**.
 
 1. **Original**: the source screen from "Put Both Sites On The Canvas" (live
    where it frames, else the served capture, else a static snapshot).
 2. **Remix**: the destination with the rebuilt effect, as a localhost screen
-   when its dev server runs, else an inline screen of the rebuilt section.
+   when a visual-edit bridge is connected for its dev server, else an inline
+   screen of the rebuilt section.
 3. **How it works**: a row of 3-5 small inline screens beneath, one stage of
    the technique each (geometry, motion, camera, shading, palette), each a
    live exploded view of the remix screen's layers (see **How It Works
@@ -363,14 +376,9 @@ each one paints:
 - A small config panel in one corner in our paper style, never a dark
   lil-gui: 3-6 rows with the explode toggle, the step's 1-3 real knobs as
   sliders and optionally a layer toggle, updating the planes live.
-- Keep the config panel visible in Edit and Interact so the board shows what
-  each step's knobs do. Until the user changes a value, it demos one knob at a
-  time: the slider sweeps out from the saved value and back, the planes follow,
-  and the live row takes the accent. The demo writes only the frame's own
-  `:root` and never calls `setTweak`. When a `tweak-values` message
-  changes a value after the first one, stop the demo and ease the planes and
-  slider to the new value over about 700 ms, then hold it. Hovering the panel
-  pauses the demo, and `prefers-reduced-motion` disables it.
+- Show an in-figure config panel only when `window.__anInteract` exists or the
+  frame is running standalone; hide it in Design Edit so the floating inspector
+  controls remain the only knobs on the canvas.
 - At most one handwritten note per card (Caveat or Gochi Hand, else serif
   italic) with a hand-drawn arrow to the key plane ("the shader only paints
   this layer").
