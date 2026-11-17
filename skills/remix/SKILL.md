@@ -34,13 +34,13 @@ stack. Follow the repo's instructions and reuse its components and conventions.
 
 Work in this order so the user sees the remix within minutes, not at the end.
 When the run finishes without Design (the user said no Design, headless or
-just the code, or Design is unavailable), skip the Design sign-in, the board
+just the code, or Design is unavailable), skip the board
 and the frame subagents in these steps:
 
 1. Start or reuse the destination dev server in the background while you work
-   on the source. Capture its current appearance. Open the Design tab and check
-   sign-in now (see **Finish On A Remix Board**), so any sign-in request reaches
-   the user while you work instead of when the board is due.
+   on the source. Capture its current appearance. Open the Design tab and read its
+   session now (see **Finish On A Remix Board**). Signed out is fine: the board
+   builds without sign-in, which is needed only to share or claim it.
 2. Drive the source in your own browser (Playwright, Chrome, or an inline
    browser), capture the running effect and inspect its shipped code using the
    two-step extraction below. No Design connector or canvas is needed.
