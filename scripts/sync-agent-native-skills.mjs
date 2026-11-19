@@ -23,6 +23,9 @@ const requestedSource =
   defaultFrameworkPath;
 
 const destinationRoot = path.join(repoRoot, "skills");
+// Turn Into App is also listed on its own in Anthropic's plugin directory, from
+// this plugin folder, so the folder carries its own copy of the skill.
+const turnIntoAppPluginSkill = "plugins/turn-into-app/skills/turn-into-app";
 const publicDocOverlays = new Set(["README.md"]);
 
 function hasSkill(dir) {
@@ -142,8 +145,11 @@ function decodeStaticTemplateLiteral(content, source) {
   return content.replace(/\\([\\`$])/g, "$1");
 }
 
-async function copySkill(name, sourceDir) {
-  const destination = path.join(destinationRoot, name);
+async function copySkill(
+  name,
+  sourceDir,
+  destination = path.join(destinationRoot, name),
+) {
   const preservedDocs = [];
 
   for (const rel of publicDocOverlays) {
@@ -206,8 +212,11 @@ async function listFiles(dir, prefix = "") {
   return out.sort();
 }
 
-async function assertSkillCurrent(name, sourceDir) {
-  const destination = path.join(destinationRoot, name);
+async function assertSkillCurrent(
+  name,
+  sourceDir,
+  destination = path.join(destinationRoot, name),
+) {
   if (!existsSync(destination)) {
     throw new Error(`${name} is missing at ${destination}`);
   }
@@ -257,6 +266,11 @@ try {
     await assertSkillCurrent("visual-edit", sources.visualEdit);
     await assertSkillCurrent("remix", sources.remix);
     await assertSkillCurrent("turn-into-app", sources.turnIntoApp);
+    await assertSkillCurrent(
+      turnIntoAppPluginSkill,
+      sources.turnIntoApp,
+      path.join(repoRoot, turnIntoAppPluginSkill),
+    );
     await assertGeneratedSkillCurrent("rewind", rewind);
   } else {
     await copySkill("an", sources.an);
@@ -265,6 +279,11 @@ try {
     await copySkill("visual-edit", sources.visualEdit);
     await copySkill("remix", sources.remix);
     await copySkill("turn-into-app", sources.turnIntoApp);
+    await copySkill(
+      turnIntoAppPluginSkill,
+      sources.turnIntoApp,
+      path.join(repoRoot, turnIntoAppPluginSkill),
+    );
     await copyGeneratedSkill("rewind", rewind);
   }
 } catch (error) {
